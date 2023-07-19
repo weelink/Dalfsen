@@ -14,6 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Dalfsen.UI\Dalfsen.UI.csproj" />
+    <ProjectReference Include="..\Dalfsen\Dalfsen.csproj" />
   </ItemGroup>
 </Project>

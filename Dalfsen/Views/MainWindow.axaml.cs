@@ -1,11 +1,13 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 
-namespace Dalfsen.UI.Views;
+namespace Dalfsen.Views;
 
 public partial class MainWindow : Window
 {
     public MainWindow()
     {
         InitializeComponent();
+        this.AttachDevTools();
     }
 }

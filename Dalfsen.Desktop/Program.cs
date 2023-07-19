@@ -3,7 +3,7 @@
 using Avalonia;
 using Avalonia.ReactiveUI;
 
-namespace Dalfsen.UI.Desktop;
+namespace Dalfsen.Desktop;
 
 class Program
 {
