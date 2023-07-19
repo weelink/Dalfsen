@@ -6,7 +6,7 @@
         xmlns:views="clr-namespace:Dalfsen.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Dalfsen.Views.MainWindow"
-        Icon="/Assets/dalfsen.ico"
+        Icon="/Assets/Coat_of_arms_of_Dalfsen.png"
         Title="Dalfsen">
         <views:MainView />
 </Window>

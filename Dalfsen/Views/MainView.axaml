@@ -5,69 +5,24 @@
              xmlns:vm="clr-namespace:Dalfsen.ViewModels"
              xmlns:m="clr-namespace:Dalfsen.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+			 xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
+			 xmlns:icons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              x:Class="Dalfsen.Views.MainView"
-             x:DataType="vm:FilesPageViewModel">
-  <Design.DataContext>
-	  <vm:FilesPageViewModel />
-  </Design.DataContext>
-
-	<DockPanel>
-		<DockPanel DockPanel.Dock="Top" Margin="0 4">
-			<ComboBox ItemsSource="{Binding Drives}"
-					  SelectedItem="{Binding SelectedDrive}"
-					  DockPanel.Dock="Left"/>
-			<CheckBox IsChecked="{Binding CellSelection}"
-					  Margin="4 0 0 0"
-					  DockPanel.Dock="Right">
-				Cell Selection
-			</CheckBox>
-			<TextBox Text="{Binding SelectedPath, Mode=OneWay}"
-					 Margin="4 0 0 0"
-					 VerticalContentAlignment="Center"
-					 KeyDown="SelectedPath_KeyDown"/>
+			 
+        x:DataType="vm:MainViewModel">
+	
+	<Grid ColumnDefinitions="1*, 2, 4*">
+		<DockPanel Grid.Column="0" LastChildFill="true">
+			<TextBlock Classes="Body1" Text="Hello world with Material.Avalonia!" DockPanel.Dock="Top" />
+			<TreeDataGrid Source="{Binding Source}" />
 		</DockPanel>
-		<TextBlock Classes="realized-count" DockPanel.Dock="Bottom"/>
-		<TreeDataGrid Name="fileViewer" Source="{Binding Source}">
-			<TreeDataGrid.Resources>
 
-				<!-- Template for Name column cells -->
-				<DataTemplate x:Key="FileNameCell" DataType="m:FileTreeNodeModel">
-					<StackPanel Orientation="Horizontal">
-						<Image Margin="0 0 4 0"
-							   VerticalAlignment="Center">
-							<Image.Source>
-								<MultiBinding Converter="{x:Static vm:FilesPageViewModel.FileIconConverter}">
-									<Binding Path="IsDirectory"/>
-									<Binding Path="IsExpanded"/>
-								</MultiBinding>
-							</Image.Source>
-						</Image>
-						<TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-					</StackPanel>
-				</DataTemplate>
-
-				<!-- Edit template for Name column cells -->
-				<DataTemplate x:Key="FileNameEditCell" DataType="m:FileTreeNodeModel">
-					<StackPanel Orientation="Horizontal">
-						<Image Margin="0 0 4 0"
-							   VerticalAlignment="Center">
-							<Image.Source>
-								<MultiBinding Converter="{x:Static vm:FilesPageViewModel.FileIconConverter}">
-									<Binding Path="IsDirectory"/>
-									<Binding Path="IsExpanded"/>
-								</MultiBinding>
-							</Image.Source>
-						</Image>
-						<TextBox Text="{Binding Name}" VerticalAlignment="Center"/>
-					</StackPanel>
-				</DataTemplate>
-
-			</TreeDataGrid.Resources>
-			<TreeDataGrid.Styles>
-				<Style Selector="TreeDataGrid TreeDataGridRow:nth-child(2n)">
-					<Setter Property="Background"  Value="#20808080"/>
-				</Style>
-			</TreeDataGrid.Styles>
-		</TreeDataGrid>
-	</DockPanel>
+		<GridSplitter Grid.Column="1" ResizeDirection="Columns"/>
+		<StackPanel Grid.Column="2">
+			<Button Classes="Öutline" Content="Some button"  />
+			<Button Classes="Öutline" Content="Some button" IsEnabled="False" />
+			<icons:MaterialIcon Kind="Abacus" />
+			<Button Content="{icons:MaterialIconExt Kind=Abacus}" />
+		</StackPanel>
+	</Grid>
 </UserControl>
