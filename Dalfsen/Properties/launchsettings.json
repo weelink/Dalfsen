@@ -1,0 +1,10 @@
+﻿{
+    "profiles": {
+      "Dalfsen (Unpackaged)": {
+        "commandName": "Project"
+      },
+      "Dalfsen (Package)": {
+        "commandName": "MsixPackage"
+      }
+    }
+}
