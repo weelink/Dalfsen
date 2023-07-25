@@ -38,4 +38,19 @@ public class FileService : IFileService
             File.Delete(Path.Combine(folderPath, fileName));
         }
     }
+
+    public Task<IEnumerable<DriveInfo>> GetDrivesAsync()
+    {
+        var drives = DriveInfo.GetDrives().Where(drive => drive.IsReady).ToList();
+
+        return Task.FromResult<IEnumerable<DriveInfo>>(drives);
+    }
+
+    public Task<IEnumerable<DirectoryInfo>> GetDirectoriesAsync(DirectoryInfo parent)
+    {
+        var enumerationOptions = new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = false };
+        var directories = parent.EnumerateDirectories("*", enumerationOptions).ToList();
+
+        return Task.FromResult<IEnumerable<DirectoryInfo>>(directories);
+    }
 }

@@ -7,4 +7,7 @@ public interface IFileService
     void Save<T>(string folderPath, string fileName, T content);
 
     void Delete(string folderPath, string fileName);
+
+    Task<IEnumerable<DriveInfo>> GetDrivesAsync();
+    Task<IEnumerable<DirectoryInfo>> GetDirectoriesAsync(DirectoryInfo parent);
 }

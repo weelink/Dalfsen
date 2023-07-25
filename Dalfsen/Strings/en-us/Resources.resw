@@ -79,4 +79,11 @@
   <data name="ShellMenuItem_Views_ListDetails.Text" xml:space="preserve">
     <value>ListDetails</value>
   </data>
+  <data name="ShellMenuItem_Views_ImageSelection.Text" xml:space="preserve">
+    <value>ImageSelection</value>
+  </data>
+  <data name="ImageSelection_Title.Text" xml:space="preserve">
+    <value>ImageSelection</value>
+    <comment>Page title for ImageSelectionPage</comment>
+  </data>
 </root>
