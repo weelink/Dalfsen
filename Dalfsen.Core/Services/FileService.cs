@@ -41,7 +41,7 @@ public class FileService : IFileService
 
     public Task<IEnumerable<DriveInfo>> GetDrivesAsync()
     {
-        var drives = DriveInfo.GetDrives().Where(drive => drive.IsReady).ToList();
+        IEnumerable<DriveInfo> drives = DriveInfo.GetDrives().Where(drive => drive.IsReady).ToList();
 
         return Task.FromResult<IEnumerable<DriveInfo>>(drives);
     }
@@ -49,8 +49,19 @@ public class FileService : IFileService
     public Task<IEnumerable<DirectoryInfo>> GetDirectoriesAsync(DirectoryInfo parent)
     {
         var enumerationOptions = new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = false };
-        var directories = parent.EnumerateDirectories("*", enumerationOptions).ToList();
+        IEnumerable<DirectoryInfo> directories = parent.EnumerateDirectories("*", enumerationOptions).ToList();
 
-        return Task.FromResult<IEnumerable<DirectoryInfo>>(directories);
+        return Task.FromResult(directories);
+    }
+
+    public Task<IEnumerable<FileInfo>> GetImagesAsync(DirectoryInfo path, bool includeSubdirectories)
+    {
+        IEnumerable<FileInfo> files = path.EnumerateFiles("*", new EnumerationOptions
+        {
+            IgnoreInaccessible = true,
+            RecurseSubdirectories = includeSubdirectories
+        });
+
+        return Task.FromResult(files);
     }
 }

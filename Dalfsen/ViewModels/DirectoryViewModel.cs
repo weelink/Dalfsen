@@ -7,8 +7,9 @@ namespace Dalfsen.ViewModels;
 public partial class DirectoryViewModel : ObservableRecipient
 {
     private readonly IFileService fileService;
-    private readonly DirectoryInfo directory;
     private IList<DirectoryViewModel> directories = new List<DirectoryViewModel>();
+    [ObservableProperty]
+    private DirectoryInfo directory;
 
     public DirectoryViewModel(IFileService fileService, DirectoryInfo directory)
     {
@@ -18,11 +19,11 @@ public partial class DirectoryViewModel : ObservableRecipient
         Directories = new ObservableCollection<DirectoryViewModel>();
     }
 
-    public virtual string Name => directory.Name;
+    public virtual string Name => Directory.Name;
 
     public ObservableCollection<DirectoryViewModel> Directories
     {
-        get; private set;
+        get;
     }
 
     public async void LoadDirectoriesAsync()
@@ -34,12 +35,19 @@ public partial class DirectoryViewModel : ObservableRecipient
 
         await Task.Run(async () =>
         {
-            var directories = await fileService.GetDirectoriesAsync(directory).ConfigureAwait(false);
+            var directories = await fileService.GetDirectoriesAsync(Directory).ConfigureAwait(false);
             var viewModels = directories.Select(directory => new DirectoryViewModel(fileService, directory)).ToList();
 
             this.directories = viewModels;
         }).ConfigureAwait(false);
 
-        Directories = new ObservableCollection<DirectoryViewModel>(directories);
+        Dispatcher.InvokeOnUIThread(() =>
+        {
+            Directories.Clear();
+            foreach (var directory in directories)
+            {
+                Directories.Add(directory);
+            }
+        });
     }
 }

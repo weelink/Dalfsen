@@ -10,4 +10,5 @@ public interface IFileService
 
     Task<IEnumerable<DriveInfo>> GetDrivesAsync();
     Task<IEnumerable<DirectoryInfo>> GetDirectoriesAsync(DirectoryInfo parent);
+    Task<IEnumerable<FileInfo>> GetImagesAsync(DirectoryInfo path, bool includeSubdirectories);
 }

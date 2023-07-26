@@ -14,7 +14,7 @@ public class PageService : IPageService
 
     public PageService()
     {
-        Configure<ImageSelectionViewModel, ImageSelectionPage>();
+        Configure<MainPageViewModel, MainPage>();
     }
 
     public Type GetPageType(string key)

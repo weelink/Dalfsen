@@ -1,5 +1,5 @@
 ﻿<Page
-    x:Class="Dalfsen.Views.ImageSelectionPage"
+    x:Class="Dalfsen.Views.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -52,7 +52,7 @@
             </SplitView.Pane>
 
             <SplitView.Content>
-                <TextBlock Text="{x:Bind ViewModel.SelectedDirectory.Name, Mode=OneWay}" />
+                <views:ImageGridView Directory="{x:Bind ViewModel.SelectedDirectory, Mode=OneWay}" />
             </SplitView.Content>
         </SplitView>
     </Grid>

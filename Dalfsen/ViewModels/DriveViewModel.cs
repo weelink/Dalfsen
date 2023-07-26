@@ -23,7 +23,7 @@ public partial class DriveViewModel : ObservableRecipient
 
     public ObservableCollection<DirectoryViewModel> Directories
     {
-        get; private set;
+        get;
     }
 
     public async void LoadDirectoriesAsync()
@@ -38,7 +38,14 @@ public partial class DriveViewModel : ObservableRecipient
             var directories = await fileService.GetDirectoriesAsync(drive.RootDirectory).ConfigureAwait(false);
             var viewModels = directories.Select(directory => new DirectoryViewModel(fileService, directory)).ToList();
 
-            Directories = new ObservableCollection<DirectoryViewModel>(viewModels);
+            Dispatcher.InvokeOnUIThread(() =>
+            {
+                Directories.Clear();
+                foreach (var viewModel in viewModels)
+                {
+                    Directories.Add(viewModel);
+                }
+            });
         }).ConfigureAwait(false);
     }
 }

@@ -10,6 +10,7 @@ using Dalfsen.Views;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 
 namespace Dalfsen;
@@ -69,8 +70,10 @@ public partial class App : Application
             services.AddSingleton<IFileService, FileService>();
 
             // Views and ViewModels
-            services.AddTransient<ImageSelectionViewModel>();
-            services.AddTransient<ImageSelectionPage>();
+            services.AddTransient<MainPageViewModel>();
+            services.AddTransient<MainPage>();
+            services.AddTransient<ImageGridViewModel>();
+            services.AddTransient<ImageGridView>();
 
             services.AddTransient<ShellPage>();
             services.AddTransient<ShellViewModel>();
@@ -92,6 +95,8 @@ public partial class App : Application
     protected async override void OnLaunched(LaunchActivatedEventArgs args)
     {
         base.OnLaunched(args);
+
+        Dispatcher.Queue = DispatcherQueue.GetForCurrentThread();
 
         await App.GetService<IActivationService>().ActivateAsync(args);
     }
