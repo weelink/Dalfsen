@@ -7,7 +7,6 @@ namespace Dalfsen.ViewModels;
 public partial class DriveViewModel : ObservableRecipient
 {
     private readonly IFileService fileService;
-    private readonly DriveInfo drive;
 
     [ObservableProperty]
     private bool isExpanded;
@@ -15,37 +14,31 @@ public partial class DriveViewModel : ObservableRecipient
     public DriveViewModel(IFileService fileService, DriveInfo drive)
     {
         this.fileService = fileService;
-        this.drive = drive;
+        Drive = drive;
         Directories = new ObservableCollection<DirectoryViewModel>();
     }
 
-    public string Name => drive.Name;
+    public string Name => Drive.Name;
 
     public ObservableCollection<DirectoryViewModel> Directories
     {
         get;
     }
+    public DriveInfo Drive { get; }
 
     public async void LoadDirectoriesAsync()
     {
-        if (Directories.Count > 0)
-        {
-            return;
-        }
+        Dispatcher.InvokeOnUIThread(() => Directories.Clear());
 
         await Task.Run(async () =>
         {
-            var directories = await fileService.GetDirectoriesAsync(drive.RootDirectory).ConfigureAwait(false);
-            var viewModels = directories.Select(directory => new DirectoryViewModel(fileService, directory)).ToList();
+            var directories = await fileService.GetDirectoriesAsync(Drive.RootDirectory, CancellationToken.None).ConfigureAwait(false);
 
-            Dispatcher.InvokeOnUIThread(() =>
+            foreach (var directory in directories)
             {
-                Directories.Clear();
-                foreach (var viewModel in viewModels)
-                {
-                    Directories.Add(viewModel);
-                }
-            });
+                var viewModel = new DirectoryViewModel(fileService, directory);
+                Dispatcher.InvokeOnUIThread(() => Directories.Add(viewModel));
+            }
         }).ConfigureAwait(false);
     }
 }

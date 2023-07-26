@@ -8,7 +8,7 @@ public interface IFileService
 
     void Delete(string folderPath, string fileName);
 
-    Task<IEnumerable<DriveInfo>> GetDrivesAsync();
-    Task<IEnumerable<DirectoryInfo>> GetDirectoriesAsync(DirectoryInfo parent);
-    Task<IEnumerable<FileInfo>> GetImagesAsync(DirectoryInfo path, bool includeSubdirectories);
+    Task<IEnumerable<DriveInfo>> GetDrivesAsync(CancellationToken cancellationToken);
+    Task<IEnumerable<DirectoryInfo>> GetDirectoriesAsync(DirectoryInfo parent, CancellationToken cancellationToken);
+    Task<IEnumerable<FileInfo>> GetImagesAsync(DirectoryInfo path, bool includeSubdirectories, CancellationToken cancellationToken);
 }

@@ -1,5 +1,4 @@
 ﻿using System.Text;
-
 using Dalfsen.Core.Contracts.Services;
 
 using Newtonsoft.Json;
@@ -39,14 +38,14 @@ public class FileService : IFileService
         }
     }
 
-    public Task<IEnumerable<DriveInfo>> GetDrivesAsync()
+    public Task<IEnumerable<DriveInfo>> GetDrivesAsync(CancellationToken cancellationToken)
     {
         IEnumerable<DriveInfo> drives = DriveInfo.GetDrives().Where(drive => drive.IsReady).ToList();
 
-        return Task.FromResult<IEnumerable<DriveInfo>>(drives);
+        return Task.FromResult(drives);
     }
 
-    public Task<IEnumerable<DirectoryInfo>> GetDirectoriesAsync(DirectoryInfo parent)
+    public Task<IEnumerable<DirectoryInfo>> GetDirectoriesAsync(DirectoryInfo parent, CancellationToken cancellationToken)
     {
         var enumerationOptions = new EnumerationOptions { IgnoreInaccessible = true, RecurseSubdirectories = false };
         IEnumerable<DirectoryInfo> directories = parent.EnumerateDirectories("*", enumerationOptions).ToList();
@@ -54,7 +53,7 @@ public class FileService : IFileService
         return Task.FromResult(directories);
     }
 
-    public Task<IEnumerable<FileInfo>> GetImagesAsync(DirectoryInfo path, bool includeSubdirectories)
+    public Task<IEnumerable<FileInfo>> GetImagesAsync(DirectoryInfo path, bool includeSubdirectories, CancellationToken cancellationToken)
     {
         IEnumerable<FileInfo> files = path.EnumerateFiles("*", new EnumerationOptions
         {

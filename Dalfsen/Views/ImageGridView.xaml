@@ -5,47 +5,67 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Dalfsen.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:models="using:Dalfsen.Models"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Dalfsen.Models"
+    xmlns:viewmodels="using:Dalfsen.ViewModels"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:converters="using:CommunityToolkit.WinUI.UI.Converters" d:DataContext="{d:DesignInstance Type=viewmodels:ImageGridViewModel}"
     mc:Ignorable="d">
 
     <UserControl.Resources>
-        <DataTemplate x:Key="ImageGridView_ItemTemplate" x:DataType="models:ImageFileInfo">
-            <Grid Height="300" Width="300" Margin="8">
-                <Grid.RowDefinitions>
-                    <RowDefinition />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-
-                <Image x:Name="ItemImage" Source="Assets/StoreLogo.png" Stretch="Uniform" />
-
-                <StackPanel Orientation="Vertical" Grid.Row="1">
-                    <TextBlock Text="{x:Bind ImageTitle}" HorizontalAlignment="Center" Style="{StaticResource SubtitleTextBlockStyle}" />
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBlock Text="{x:Bind ImageFileType}" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" />
-                        <TextBlock Text="{x:Bind ImageDimensions}" HorizontalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" Margin="8,0,0,0" />
-                    </StackPanel>
-                </StackPanel>
-            </Grid>
-        </DataTemplate>
-
-        <Style x:Key="ImageGridView_ItemContainerStyle" TargetType="GridViewItem">
-            <Setter Property="Background" Value="Gray"/>
-            <Setter Property="Margin" Value="8"/>
-        </Style>
-
-        <ItemsPanelTemplate x:Key="ImageGridView_ItemsPanelTemplate">
-            <ItemsWrapGrid Orientation="Horizontal" HorizontalAlignment="Center"/>
-        </ItemsPanelTemplate>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
 
-    <Grid>
-        <GridView
+    <controls:DockPanel LastChildFill="True">
+        <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Top">
+            <ToggleButton x:Name="FirstButton" IsChecked="{x:Bind ViewModel.IncludeSubdirectories, Mode=TwoWay}" Content="Inclusief submappen" />
+
+            <TextBlock Margin="0,0,10,0"/>
+            <TextBlock Text="Zoeken..."
+                x:Name="BezigMetLaden"
+                VerticalAlignment="Center"
+                Visibility="Collapsed"
+            />
+            <TextBlock Margin="0,0,10,0"/>
+            <ProgressRing
+                x:Name="TheProgressRing"
+                Height="{x:Bind FirstButton.ActualHeight}"
+                Width="{x:Bind FirstButton.ActualHeight}"
+                IsActive="False"
+            />
+
+            <Button x:Name="AnnuleerLaden"
+                    Click="{x:Bind ViewModel.CancelLoading}"
+                    Content="{x:Bind ViewModel.CancelCaption, Mode=OneWay}"
+                    IsEnabled="{x:Bind ViewModel.IsNotCancelling, Mode=OneWay}"
+                    Visibility="Collapsed" />
+        </StackPanel>
+        <controls:DataGrid
             x:Name="Images"
-            ContainerContentChanging="ImageGridView_ContainerContentChanging"
-            ItemTemplate="{StaticResource ImageGridView_ItemTemplate}"
-            ItemContainerStyle="{StaticResource ImageGridView_ItemContainerStyle}"
-            ItemsPanel="{StaticResource ImageGridView_ItemsPanelTemplate}"
+            AutoGenerateColumns="False"
             ItemsSource="{x:Bind ViewModel.Images}"
-            HorizontalAlignment="Center" />
-    </Grid>
+        >
+            <controls:DataGrid.Columns>
+                <controls:DataGridTemplateColumn Width="40" CanUserSort="False">
+                    <controls:DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="models:ImageFileInfo">
+                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Checked="{x:Bind SelectCommand}" />
+                        </DataTemplate>
+                    </controls:DataGridTemplateColumn.CellTemplate>
+                </controls:DataGridTemplateColumn>
+
+                <controls:DataGridTemplateColumn Header="Voorbeeld" CanUserSort="True">
+                    <controls:DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate x:DataType="models:ImageFileInfo">
+                            <Image Source="{x:Bind ImageSource}" Stretch="Uniform" Width="128" Height="128" />
+                        </DataTemplate>
+                    </controls:DataGridTemplateColumn.CellTemplate>
+                </controls:DataGridTemplateColumn>
+
+                <controls:DataGridTextColumn Header="Pad" Binding="{Binding Path}" CanUserSort="True" />
+                <controls:DataGridTextColumn Header="Grootte" Binding="{Binding ImageDimensions}" />
+                <controls:DataGridTextColumn Header="Type" Binding="{Binding ImageFileType}" CanUserSort="True" />
+            </controls:DataGrid.Columns>
+        </controls:DataGrid>
+    </controls:DockPanel>
 </UserControl>

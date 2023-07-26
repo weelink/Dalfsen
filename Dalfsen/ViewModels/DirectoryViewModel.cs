@@ -28,26 +28,16 @@ public partial class DirectoryViewModel : ObservableRecipient
 
     public async void LoadDirectoriesAsync()
     {
-        if (directories.Count > 0)
-        {
-            return;
-        }
+        Dispatcher.InvokeOnUIThread(() => Directories.Clear());
 
         await Task.Run(async () =>
         {
-            var directories = await fileService.GetDirectoriesAsync(Directory).ConfigureAwait(false);
-            var viewModels = directories.Select(directory => new DirectoryViewModel(fileService, directory)).ToList();
-
-            this.directories = viewModels;
-        }).ConfigureAwait(false);
-
-        Dispatcher.InvokeOnUIThread(() =>
-        {
-            Directories.Clear();
+            var directories = await fileService.GetDirectoriesAsync(Directory, CancellationToken.None).ConfigureAwait(false);
             foreach (var directory in directories)
             {
-                Directories.Add(directory);
+                var viewModel = new DirectoryViewModel(fileService, directory);
+                Dispatcher.InvokeOnUIThread(() => Directories.Add(viewModel));
             }
-        });
+        }).ConfigureAwait(false);
     }
 }

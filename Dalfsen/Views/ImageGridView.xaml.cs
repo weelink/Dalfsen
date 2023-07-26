@@ -15,6 +15,18 @@ public sealed partial class ImageGridView : UserControl
         ViewModel = App.GetService<ImageGridViewModel>();
 
         InitializeComponent();
+
+        ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+    }
+
+    private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ViewModel.LoadingDirectory))
+        {
+            TheProgressRing.IsActive = ViewModel.LoadingDirectory;
+            BezigMetLaden.Visibility = ViewModel.LoadingDirectory ? Visibility.Visible : Visibility.Collapsed;
+            AnnuleerLaden.Visibility = BezigMetLaden.Visibility;
+        }
     }
 
     public DirectoryViewModel? Directory
@@ -32,33 +44,5 @@ public sealed partial class ImageGridView : UserControl
     {
         var control = (ImageGridView)d;
         control.ViewModel.Directory = (DirectoryViewModel)e.NewValue;
-    }
-
-    private void ImageGridView_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
-    {
-        if (args.InRecycleQueue)
-        {
-            var templateRoot = (Grid)args.ItemContainer.ContentTemplateRoot;
-            var image = (Image)templateRoot.FindName("ItemImage");
-            image.Source = null;
-        }
-
-        if (args.Phase == 0)
-        {
-            args.RegisterUpdateCallback(ShowImage);
-            args.Handled = true;
-        }
-    }
-
-    private async void ShowImage(ListViewBase sender, ContainerContentChangingEventArgs args)
-    {
-        if (args.Phase == 1)
-        {
-            // It's phase 1, so show this item's image.
-            var templateRoot = (Grid)args.ItemContainer.ContentTemplateRoot;
-            var image = (Image)templateRoot.FindName("ItemImage");
-            var item = (ImageFileInfo)args.Item;
-            image.Source = await item.GetImageThumbnailAsync();
-        }
     }
 }

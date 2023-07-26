@@ -21,7 +21,15 @@ public partial class MainPageViewModel : ObservableRecipient, INavigationAware
 
     public void OnDirectorySelected(object? sender, TreeViewItemInvokedEventArgs args)
     {
-        SelectedDirectory = (DirectoryViewModel?)args.InvokedItem;
+        if (args.InvokedItem is DriveViewModel drive)
+        {
+            SelectedDirectory = new DirectoryViewModel(fileService, drive.Drive.RootDirectory);
+        }
+        else
+        {
+            SelectedDirectory = (DirectoryViewModel?)args.InvokedItem;
+        }
+
         args.Handled = true;
     }
 
@@ -36,10 +44,11 @@ public partial class MainPageViewModel : ObservableRecipient, INavigationAware
 
     private async void LoadDevicesAsync()
     {
+        Dispatcher.InvokeOnUIThread(() => Drives.Clear());
+
         await Task.Run(async () =>
         {
-
-            IEnumerable<DriveInfo> drives = await fileService.GetDrivesAsync().ConfigureAwait(false);
+            IEnumerable<DriveInfo> drives = await fileService.GetDrivesAsync(CancellationToken.None).ConfigureAwait(false);
             var viewModels = drives.Select(drive => new DriveViewModel(fileService, drive)).ToList();
             var cDrive = viewModels.SingleOrDefault(x => x.Name.Equals("C:\\", StringComparison.InvariantCultureIgnoreCase));
 
@@ -48,15 +57,11 @@ public partial class MainPageViewModel : ObservableRecipient, INavigationAware
                 cDrive.IsExpanded = true;
             }
 
-            Dispatcher.InvokeOnUIThread(() =>
+            foreach (var viewModel in viewModels)
             {
-                Drives.Clear();
-                foreach (var drive in viewModels)
-                {
-                    Drives.Add(drive);
-                }
-            });
-        });
+                Dispatcher.InvokeOnUIThread(() => Drives.Add(viewModel));
+            }
+        }).ConfigureAwait(false);
     }
 
     public ObservableCollection<DriveViewModel> Drives
