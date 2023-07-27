@@ -1,23 +1,19 @@
 ﻿using Dalfsen.Collections;
 using Dalfsen.Commands;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace Dalfsen.ViewModels
 {
     public abstract class ExplorerViewModel : ViewModel
     {
-        private readonly DirectoryInfo directory;
-
         private bool isExpanded;
 
         protected ExplorerViewModel(DirectoryInfo directory)
         {
-            this.directory = directory;
+            Directory = directory;
             Name = directory.Name;
             Directories = new SmartCollection<DirectoryViewModel>(new[] { default(DirectoryViewModel)! });
             LoadDirectoriesCommand = new DelegateCommand(() => LoadDirectories());
@@ -33,12 +29,13 @@ namespace Dalfsen.ViewModels
 
         public SmartCollection<DirectoryViewModel> Directories { get; }
         public ICommand LoadDirectoriesCommand { get; }
+        public DirectoryInfo Directory { get; }
 
         private void LoadDirectories()
         {
             Directories.Clear();
 
-            IEnumerable<DirectoryInfo> directories = directory.EnumerateDirectories("*", new EnumerationOptions
+            IEnumerable<DirectoryInfo> directories = Directory.EnumerateDirectories("*", new EnumerationOptions
             {
                 IgnoreInaccessible = true,
                 RecurseSubdirectories = false
