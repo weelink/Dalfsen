@@ -21,13 +21,23 @@
         </Behaviors:EventTrigger>
     </Behaviors:Interaction.Triggers>
 
-    <DockPanel LastChildFill="True">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
         <TreeView
-            DockPanel.Dock="Left"
+            Grid.Column="0"
             x:Name="DirectoryBrowser"
             ItemsSource="{Binding Drives}"
-            Width="300"
+            VirtualizingStackPanel.IsVirtualizing="True"
         >
+            <Behaviors:Interaction.Behaviors>
+                <behaviors:BindableSelectedItemBehavior SelectedItem="{Binding ElementName=ImageGrid, Path=DataContext.ExplorerViewModel}" />
+            </Behaviors:Interaction.Behaviors>
+            
             <TreeView.Resources>
                 <Style TargetType="TreeViewItem">
                     <Setter Property="behaviors:Behaviors.ExpandingBehavior" Value="{Binding LoadDirectoriesCommand}"/>
@@ -71,8 +81,15 @@
                     </StackPanel>
                 </HierarchicalDataTemplate>
             </TreeView.Resources>
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                </Style>
+            </TreeView.ItemContainerStyle>
         </TreeView>
 
-        <views:ImageGridView DataContext="{Binding SelectedDirectory, Mode=OneWay}" />
-    </DockPanel>
+        <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" />
+
+        <views:ImageGridView x:Name="ImageGrid" Grid.Column="2" />
+    </Grid>
 </mah:MetroWindow>

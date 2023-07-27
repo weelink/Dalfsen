@@ -12,7 +12,7 @@ namespace Dalfsen.ViewModels
         public MainWindowViewModel()
         {
             Drives = new ObservableCollection<DriveViewModel>();
-            LoadCommand = new AsyncDelegateCommand(() => Load());
+            LoadCommand = new DelegateCommand(() => Load());
         }
 
         public ICommand LoadCommand { get; }

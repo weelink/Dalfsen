@@ -4,18 +4,18 @@ using System.Windows.Input;
 
 namespace Dalfsen.Commands
 {
-    public class AwaitableDelegateCommand<TParameter> : IAsyncCommand<TParameter?>, ICommand
+    public class AsyncDelegateCommand<TParameter> : IAsyncCommand<TParameter?>, ICommand
     {
         private readonly Func<TParameter?, Task> execute;
         private readonly DelegateCommand<TParameter?> underlyingCommand;
         private bool isExecuting;
 
-        public AwaitableDelegateCommand(Func<TParameter?, Task> executeMethod)
+        public AsyncDelegateCommand(Func<TParameter?, Task> executeMethod)
             : this(executeMethod, _ => true)
         {
         }
 
-        public AwaitableDelegateCommand(Func<TParameter?, Task> executeMethod, Func<TParameter?, bool> canExecuteMethod)
+        public AsyncDelegateCommand(Func<TParameter?, Task> executeMethod, Func<TParameter?, bool> canExecuteMethod)
         {
             execute = executeMethod;
             underlyingCommand = new DelegateCommand<TParameter?>(x => { }, canExecuteMethod);

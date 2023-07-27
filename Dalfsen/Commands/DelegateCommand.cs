@@ -2,14 +2,14 @@
 
 namespace Dalfsen.Commands
 {
-    public class AsyncDelegateCommand : DelegateCommand<object>
+    public class DelegateCommand : DelegateCommand<object>
     {
-        public AsyncDelegateCommand(Action executeMethod)
+        public DelegateCommand(Action executeMethod)
             : base(_ => executeMethod())
         {
         }
 
-        public AsyncDelegateCommand(Action executeMethod, Func<bool> canExecuteMethod)
+        public DelegateCommand(Action executeMethod, Func<bool> canExecuteMethod)
             : base(_ => executeMethod(), _ => canExecuteMethod())
         {
         }
