@@ -1,43 +1,60 @@
-﻿using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
-using Dalfsen.Core.Contracts.Services;
+﻿using Dalfsen.Commands;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
-namespace Dalfsen.ViewModels;
-
-public partial class DirectoryViewModel : ObservableRecipient
+namespace Dalfsen.ViewModels
 {
-    private readonly IFileService fileService;
-    private IList<DirectoryViewModel> directories = new List<DirectoryViewModel>();
-    [ObservableProperty]
-    private DirectoryInfo directory;
-
-    public DirectoryViewModel(IFileService fileService, DirectoryInfo directory)
+    public class DirectoryViewModel : ViewModel
     {
-        this.fileService = fileService;
-        this.directory = directory;
-
-        Directories = new ObservableCollection<DirectoryViewModel>();
-    }
-
-    public virtual string Name => Directory.Name;
-
-    public ObservableCollection<DirectoryViewModel> Directories
-    {
-        get;
-    }
-
-    public async void LoadDirectoriesAsync()
-    {
-        Dispatcher.InvokeOnUIThread(() => Directories.Clear());
-
-        await Task.Run(async () =>
+        private readonly DirectoryInfo directory;
+        private bool isExpanded;
+        private bool isSelected;
+        
+        public DirectoryViewModel(DirectoryInfo directory)
         {
-            var directories = await fileService.GetDirectoriesAsync(Directory, CancellationToken.None).ConfigureAwait(false);
-            foreach (var directory in directories)
+            this.directory = directory;
+         
+            Name = directory.Name;
+            Directories = new ObservableCollection<DirectoryViewModel>(new[] { default(DirectoryViewModel)! });
+            LoadDirectoriesCommand = new AsyncDelegateCommand(() => LoadDirectoriesAsync());
+        }
+
+        public string Name { get; }
+
+        public bool IsExpanded
+        {
+            get { return isExpanded; }
+            set { SetProperty(ref isExpanded, value); }
+        }
+
+        public bool IsSelected
+        {
+            get { return isSelected; }
+            set { SetProperty(ref isSelected, value); }
+        }
+
+        public ObservableCollection<DirectoryViewModel> Directories { get; }
+        public ICommand LoadDirectoriesCommand { get; }
+
+        private Task LoadDirectoriesAsync()
+        {
+            Directories.Clear();
+
+            IEnumerable<DirectoryInfo> directories = directory.EnumerateDirectories("*", new EnumerationOptions
             {
-                var viewModel = new DirectoryViewModel(fileService, directory);
-                Dispatcher.InvokeOnUIThread(() => Directories.Add(viewModel));
+                IgnoreInaccessible = true,
+                RecurseSubdirectories = false
+            });
+
+            foreach (DirectoryInfo directory in directories)
+            {
+                Directories.Add(new DirectoryViewModel(directory));
             }
-        }).ConfigureAwait(false);
+
+            return Task.CompletedTask;
+        }
     }
 }

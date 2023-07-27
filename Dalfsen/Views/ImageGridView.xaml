@@ -1,71 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
-<UserControl
-    x:Class="Dalfsen.Views.ImageGridView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Dalfsen.Views"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:Dalfsen.Models"
-    xmlns:viewmodels="using:Dalfsen.ViewModels"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
-    xmlns:converters="using:CommunityToolkit.WinUI.UI.Converters" d:DataContext="{d:DesignInstance Type=viewmodels:ImageGridViewModel}"
-    mc:Ignorable="d">
-
-    <UserControl.Resources>
-        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-    </UserControl.Resources>
-
-    <controls:DockPanel LastChildFill="True">
-        <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Top">
-            <ToggleButton x:Name="FirstButton" IsChecked="{x:Bind ViewModel.IncludeSubdirectories, Mode=TwoWay}" Content="Inclusief submappen" />
-
-            <TextBlock Margin="0,0,10,0"/>
-            <TextBlock Text="Zoeken..."
-                x:Name="BezigMetLaden"
-                VerticalAlignment="Center"
-                Visibility="Collapsed"
-            />
-            <TextBlock Margin="0,0,10,0"/>
-            <ProgressRing
-                x:Name="TheProgressRing"
-                Height="{x:Bind FirstButton.ActualHeight}"
-                Width="{x:Bind FirstButton.ActualHeight}"
-                IsActive="False"
-            />
-
-            <Button x:Name="AnnuleerLaden"
-                    Click="{x:Bind ViewModel.CancelLoading}"
-                    Content="{x:Bind ViewModel.CancelCaption, Mode=OneWay}"
-                    IsEnabled="{x:Bind ViewModel.IsNotCancelling, Mode=OneWay}"
-                    Visibility="Collapsed" />
-        </StackPanel>
-        <controls:DataGrid
-            x:Name="Images"
-            AutoGenerateColumns="False"
-            ItemsSource="{x:Bind ViewModel.Images}"
-        >
-            <controls:DataGrid.Columns>
-                <controls:DataGridTemplateColumn Width="40" CanUserSort="False">
-                    <controls:DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate x:DataType="models:ImageFileInfo">
-                            <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Checked="{x:Bind SelectCommand}" />
-                        </DataTemplate>
-                    </controls:DataGridTemplateColumn.CellTemplate>
-                </controls:DataGridTemplateColumn>
-
-                <controls:DataGridTemplateColumn Header="Voorbeeld" CanUserSort="True">
-                    <controls:DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate x:DataType="models:ImageFileInfo">
-                            <Image Source="{x:Bind ImageSource}" Stretch="Uniform" Width="128" Height="128" />
-                        </DataTemplate>
-                    </controls:DataGridTemplateColumn.CellTemplate>
-                </controls:DataGridTemplateColumn>
-
-                <controls:DataGridTextColumn Header="Pad" Binding="{Binding Path}" CanUserSort="True" />
-                <controls:DataGridTextColumn Header="Grootte" Binding="{Binding ImageDimensions}" />
-                <controls:DataGridTextColumn Header="Type" Binding="{Binding ImageFileType}" CanUserSort="True" />
-            </controls:DataGrid.Columns>
-        </controls:DataGrid>
-    </controls:DockPanel>
+﻿<UserControl x:Class="Dalfsen.Views.ImageGridView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Dalfsen.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+            
+    </Grid>
 </UserControl>

@@ -1,16 +1,78 @@
-﻿<windowex:WindowEx
-    x:Class="Dalfsen.MainWindow"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Dalfsen"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:windowex="using:WinUIEx"
-    MinWidth="500"
-    MinHeight="500"
-    PersistenceId="MainWindow"
-    mc:Ignorable="d">
-    <Window.SystemBackdrop>
-        <MicaBackdrop/>
-    </Window.SystemBackdrop>
-</windowex:WindowEx>
+﻿<mah:MetroWindow x:Class="Dalfsen.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewmodels="clr-namespace:Dalfsen.ViewModels"
+        xmlns:views="clr-namespace:Dalfsen.Views"
+        xmlns:behaviors="clr-namespace:Dalfsen.Behaviors"
+        xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <mah:MetroWindow.DataContext>
+        <viewmodels:MainWindowViewModel />
+    </mah:MetroWindow.DataContext>
+
+    <Behaviors:Interaction.Triggers>
+        <Behaviors:EventTrigger EventName="Loaded">
+            <Behaviors:InvokeCommandAction Command="{Binding LoadCommand}"/>
+        </Behaviors:EventTrigger>
+    </Behaviors:Interaction.Triggers>
+
+    <DockPanel LastChildFill="True">
+        <TreeView
+            DockPanel.Dock="Left"
+            x:Name="DirectoryBrowser"
+            ItemsSource="{Binding Drives}"
+            Width="300"
+        >
+            <TreeView.Resources>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="behaviors:Behaviors.ExpandingBehavior" Value="{Binding LoadDirectoriesCommand}"/>
+                </Style>
+                <HierarchicalDataTemplate DataType="{x:Type viewmodels:DriveViewModel}" ItemsSource="{Binding Directories}">
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconFontAwesome>
+                            <iconPacks:PackIconFontAwesome.Style>
+                                <Style TargetType="iconPacks:PackIconFontAwesome">
+                                    <Setter Property="Kind" Value="HddRegular" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TreeViewItem}, Path=IsExpanded}" Value="True">
+                                            <Setter Property="Kind" Value="HddRegular" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </iconPacks:PackIconFontAwesome.Style>
+                        </iconPacks:PackIconFontAwesome>
+
+                        <TextBlock Margin="0,0,10,0"/>
+                        <TextBlock Text="{Binding Name}" />
+                    </StackPanel>
+                </HierarchicalDataTemplate>
+                <HierarchicalDataTemplate DataType="{x:Type viewmodels:DirectoryViewModel}" ItemsSource="{Binding Directories}">
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconFontAwesome Foreground="#f8d876">
+                            <iconPacks:PackIconFontAwesome.Style>
+                                <Style TargetType="iconPacks:PackIconFontAwesome">
+                                    <Setter Property="Kind" Value="FolderSolid" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TreeViewItem}, Path=IsExpanded}" Value="True">
+                                            <Setter Property="Kind" Value="FolderOpenSolid" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </iconPacks:PackIconFontAwesome.Style>
+                        </iconPacks:PackIconFontAwesome>
+
+                        <TextBlock Margin="0,0,10,0"/>
+                        <TextBlock Text="{Binding Name}" />
+                    </StackPanel>
+                </HierarchicalDataTemplate>
+            </TreeView.Resources>
+        </TreeView>
+
+        <views:ImageGridView DataContext="{Binding SelectedDirectory, Mode=OneWay}" />
+    </DockPanel>
+</mah:MetroWindow>
