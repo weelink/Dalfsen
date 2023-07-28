@@ -4,14 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-             xmlns:viewmodels="clr-namespace:Dalfsen.ViewModels"
              xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
+             DataContext="{Binding Path=ImageGridViewModel, Source={StaticResource ViewModelLocator}}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <UserControl.DataContext>
-        <viewmodels:ImageGridViewModel />
-    </UserControl.DataContext>
-
     <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="PropertyChanged" SourceObject="{Binding}">
             <Behaviors:InvokeCommandAction Command="{Binding LoadImagesCommand}" />
@@ -21,11 +17,6 @@
     <DockPanel LastChildFill="True">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
             <mah:ToggleSwitch IsOn="{Binding IncludeSubdirectories}" Content="Toon submappen" />
-            <mah:MetroProgressBar Width="250"
-                      Margin="4"
-                      Maximum="{Binding NumberOfFilesToCheck}"
-                      Minimum="0"
-                      Value="{Binding NumberOfFilesChecked}" />
             <mah:Badged Badge="12">
                 <Button Content="Exporteer" />
             </mah:Badged>
@@ -43,12 +34,12 @@
                 <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Image Source="{Binding FullPath}" Stretch="Uniform" Width="128" Height="128" />
+                            <Image Source="{Binding FullPath, Mode=OneWay}" Stretch="Uniform" Width="128" Height="128" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Binding="{Binding Name}" Header="Pad" />
-                <DataGridTextColumn Binding="{Binding Dimensions}" Header="Grootte" />
+                <DataGridTextColumn Binding="{Binding Name, Mode=OneWay}" Header="Pad" />
+                <DataGridTextColumn Binding="{Binding Dimensions, Mode=OneWay}" Header="Grootte" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

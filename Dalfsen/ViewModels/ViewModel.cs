@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Dalfsen.ViewModels
 {
-    public abstract class ViewModel
+    public abstract class ViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 

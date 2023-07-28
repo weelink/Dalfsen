@@ -1,6 +1,4 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Threading;
+﻿using System.Windows;
 
 namespace Dalfsen
 {
@@ -9,9 +7,5 @@ namespace Dalfsen
     /// </summary>
     public partial class App : Application
     {
-        protected override void OnStartup(StartupEventArgs e)
-        {
-            Execute.Dispatcher = Dispatcher.CurrentDispatcher;
-        }
     }
 }

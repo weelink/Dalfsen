@@ -1,8 +1,8 @@
 ﻿namespace Dalfsen.Views
 {
-    public partial class ImageGridView
+    public partial class StatusBarView
     {
-        public ImageGridView()
+        public StatusBarView()
         {
             InitializeComponent();
         }

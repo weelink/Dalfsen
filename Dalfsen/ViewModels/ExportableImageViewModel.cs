@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Windows.Media.Imaging;
 
 namespace Dalfsen.ViewModels
@@ -11,15 +12,29 @@ namespace Dalfsen.ViewModels
         public ExportableImageViewModel(DirectoryInfo directory, FileInfo file)
         {
             this.file = file;
-         
+
             Name = Path.GetRelativePath(directory.FullName, file.FullName);
             FullPath = file.FullName!;
 
-            using (FileStream imageStream = File.OpenRead(FullPath))
+            try
             {
-                BitmapDecoder decoder = BitmapDecoder.Create(imageStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.Default);
-                Height = decoder.Frames[0].PixelHeight;
-                Width = decoder.Frames[0].PixelWidth;
+                if (file.Extension.ToLowerInvariant() == ".svg")
+                {
+                    return;
+                }
+
+                using (FileStream imageStream = File.OpenRead(FullPath))
+                {
+                    BitmapDecoder decoder = BitmapDecoder.Create(imageStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.Default);
+                    Height = decoder.Frames[0].PixelHeight;
+                    Width = decoder.Frames[0].PixelWidth;
+                }
+
+            }
+            catch (System.Exception)
+            {
+                Debug.WriteLine(FullPath);
+                throw;
             }
         }
 

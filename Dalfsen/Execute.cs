@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows.Threading;
 
 namespace Dalfsen
 {
-    public static class Execute
+    public static class Execute2
     {
-        public static Dispatcher Dispatcher { get; set; } = null!;
-
-        public static void OnUIThread(Action action)
+        public static void OnUIThread(Action action, DispatcherPriority priority)
         {
-            Dispatcher.Invoke(action);
+            Debug.WriteLine("OnUITHread");
+            System.Windows.Application.Current.Dispatcher.Invoke(action);
         }
     }
 }

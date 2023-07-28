@@ -10,10 +10,8 @@
         xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <mah:MetroWindow.DataContext>
-        <viewmodels:MainWindowViewModel />
-    </mah:MetroWindow.DataContext>
+        Title="MainWindow" Height="450" Width="800"
+        DataContext="{Binding Path=MainWindowViewModel, Source={StaticResource ViewModelLocator}}">
 
     <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="Loaded">
@@ -28,9 +26,15 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="20" />
+        </Grid.RowDefinitions>
+
         <TreeView
-            Grid.Column="0"
             x:Name="DirectoryBrowser"
+            Grid.Row="0" 
+            Grid.Column="0"
             ItemsSource="{Binding Drives}"
             VirtualizingPanel.IsVirtualizing="True"
             VirtualizingPanel.VirtualizationMode="Standard"
@@ -38,7 +42,7 @@
             <Behaviors:Interaction.Behaviors>
                 <behaviors:BindableSelectedItemBehavior SelectedItem="{Binding ElementName=ImageGrid, Path=DataContext.Directory}" />
             </Behaviors:Interaction.Behaviors>
-            
+
             <TreeView.Resources>
                 <Style TargetType="TreeViewItem">
                     <Setter Property="behaviors:Behaviors.ExpandingBehavior" Value="{Binding LoadDirectoriesCommand}"/>
@@ -89,8 +93,10 @@
             </TreeView.ItemContainerStyle>
         </TreeView>
 
-        <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" />
+        <GridSplitter Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" />
 
-        <views:ImageGridView x:Name="ImageGrid" Grid.Column="2" />
+        <views:ImageGridView x:Name="ImageGrid" Grid.Row="0" Grid.Column="2" />
+
+        <views:StatusBarView Grid.Row="1" Grid.ColumnSpan="3" />
     </Grid>
 </mah:MetroWindow>
