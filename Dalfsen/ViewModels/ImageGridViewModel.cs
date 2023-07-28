@@ -1,8 +1,8 @@
 ﻿using Dalfsen.Collections;
 using Dalfsen.Commands;
+using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -17,14 +17,16 @@ namespace Dalfsen.ViewModels
     {
         private ExplorerViewModel? directory;
         private bool includeSubdirectories;
+        private bool? allSelected;
         private int numberOfFilesToCheck;
         private int numberOfFilesChecked;
         private CancellationTokenSource? cancellationTokenSource;
-        private StatusBarViewModel statusIndicator;
+        private readonly StatusBarViewModel statusIndicator;
 
-        public ImageGridViewModel(StatusBarViewModel statusIndicator)
+        public ImageGridViewModel(StatusBarViewModel statusIndicator, ExporterViewModel exporter)
         {
             this.statusIndicator = statusIndicator;
+            Exporter = exporter;
             Images = new SmartCollection<ExportableImageViewModel>();
             LoadImagesCommand = new AsyncDelegateCommand(() => Task.Run(() => LoadImagesAsync()));
 
@@ -36,6 +38,8 @@ namespace Dalfsen.ViewModels
                 }
             };
         }
+
+        public ExporterViewModel Exporter { get; }
 
         public ExplorerViewModel? Directory
         {
@@ -61,6 +65,12 @@ namespace Dalfsen.ViewModels
             set { SetProperty(ref numberOfFilesChecked, value); }
         }
 
+        public bool? AllSelected
+        {
+            get { return allSelected; }
+            set { SetProperty(ref allSelected, value); }
+        }
+
         public SmartCollection<ExportableImageViewModel> Images { get; }
         public ICommand LoadImagesCommand { get; }
 
@@ -80,11 +90,12 @@ namespace Dalfsen.ViewModels
                 var cancellationToken = cancellationTokenSource.Token;
                 Application.Current.Dispatcher.Invoke(() =>
                 {
+                    Images.Clear();
                     statusIndicator.Reset();
                     statusIndicator.Minimum = 0;
                     statusIndicator.Text = "Bezig met zoeken";
                     statusIndicator.Indeterminate = true;
-                    Images.Clear();
+                    AllSelected = false;
                 });
 
                 try
@@ -105,9 +116,8 @@ namespace Dalfsen.ViewModels
 
                     Application.Current.Dispatcher.Invoke(() => Images.AddRange(viewModels), DispatcherPriority.Normal, cancellationToken);
                 }
-                catch (OperationCanceledException e)
+                catch (OperationCanceledException)
                 {
-                    Debug.WriteLine(e.ToString());
                 }
                 finally
                 {
@@ -122,7 +132,7 @@ namespace Dalfsen.ViewModels
 
         private IEnumerable<ExportableImageViewModel> NewMethod(DirectoryInfo directory, FileInfo[] subfiles, CancellationToken cancellationToken)
         {
-            var files = subfiles.Where(file => file.Length > 0 && IsImage(file, cancellationToken)).Select(file => new ExportableImageViewModel(directory, file)).ToList();
+            var files = subfiles.Where(file => file.Length > 0 && IsImage(file, cancellationToken)).Select(file => new ExportableImageViewModel(directory, file, Exporter)).ToList();
 
             Application.Current.Dispatcher.Invoke(() => statusIndicator.Value += subfiles.Length);
 
@@ -133,26 +143,10 @@ namespace Dalfsen.ViewModels
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var extensions = new[] {
-                ".apng",
-".avif",
-".gif",
-".jpg",
-".jpeg",
-".jfif",
-".pjpeg",
-".pjp",
-".png",
-".svg",
-".webp",
-".bmp",
-".ico",
-".cur",
-".tif",
-".tiff"
-            };
+            var extensions = new[] { ".apng", ".avif", ".gif", ".jpg", ".jpeg", ".jfif", ".pjpeg", ".pjp", ".png", ".webp", ".bmp", ".ico", ".cur", ".tif", ".tiff" };
 
             return extensions.Contains(file.Extension.ToLowerInvariant());
         }
     }
 }
+ 

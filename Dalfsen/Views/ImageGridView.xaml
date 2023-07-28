@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-             xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors" xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks" xmlns:simpleChildWindow="http://metro.mahapps.com/winfx/xaml/simplechildwindow"
              DataContext="{Binding Path=ImageGridViewModel, Source={StaticResource ViewModelLocator}}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -15,22 +15,41 @@
     </Behaviors:Interaction.Triggers>
 
     <DockPanel LastChildFill="True">
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-            <mah:ToggleSwitch IsOn="{Binding IncludeSubdirectories}" Content="Toon submappen" />
-            <mah:Badged Badge="12">
-                <Button Content="Exporteer" />
-            </mah:Badged>
-        </StackPanel>
+        <Border BorderThickness="0 0 0 1" BorderBrush="Black" DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+            <DockPanel LastChildFill="True" Margin="10">
+                <mah:ToggleSwitch IsOn="{Binding IncludeSubdirectories}" Content="Toon submappen" Focusable="False" DockPanel.Dock="Left" />
+
+                <mah:Badged DockPanel.Dock="Right" Badge="{Binding Exporter.Count}" BadgeBackground="Red" Margin="0,0,10,0">
+                    <Button Style="{StaticResource MahApps.Styles.Button.Square.Accent}" IsEnabled="{Binding Exporter.HasSelectedItems}" Command="{Binding Path=ExporterViewModel.ExportCommand, Source={StaticResource ViewModelLocator}}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Exporteren" />
+                            <TextBlock Margin="0,0,10,0"/>
+                            <iconPacks:PackIconUnicons Kind="FileExport" />
+                        </StackPanel>
+                    </Button>
+                </mah:Badged>
+                <TextBlock />
+            </DockPanel>
+        </Border>
 
         <DataGrid
-            EnableRowVirtualization="True"
-            VirtualizingPanel.VirtualizationMode="Recycling"
-            VirtualizingPanel.IsVirtualizing="True"
-            ScrollViewer.CanContentScroll="True"
-            AutoGenerateColumns="False"
-            ItemsSource="{Binding Images}">
+                EnableRowVirtualization="True"
+                VirtualizingPanel.VirtualizationMode="Recycling"
+                VirtualizingPanel.IsVirtualizing="True"
+                ScrollViewer.CanContentScroll="True"
+                AutoGenerateColumns="False"
+                CanUserReorderColumns="False"
+                CanUserSortColumns="False"
+                HeadersVisibility="None"
+                ItemsSource="{Binding Images}">
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Binding="{Binding IsSelected, Mode=TwoWay}" />
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding Path=IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
@@ -38,8 +57,8 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Binding="{Binding Name, Mode=OneWay}" Header="Pad" />
-                <DataGridTextColumn Binding="{Binding Dimensions, Mode=OneWay}" Header="Grootte" />
+                <DataGridTextColumn Binding="{Binding Name, Mode=OneWay}" />
+                <DataGridTextColumn Binding="{Binding Dimensions, Mode=OneWay}"/>
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

@@ -15,7 +15,7 @@
 
         public void Reset()
         {
-            Text = "Klaar";
+            Text = "";
             Minimum = 0;
             Maximum = 100;
             Value = 0;

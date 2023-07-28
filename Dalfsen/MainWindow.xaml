@@ -9,8 +9,12 @@
         xmlns:behaviors="clr-namespace:Dalfsen.Behaviors"
         xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:simpleChildWindow="http://metro.mahapps.com/winfx/xaml/simplechildwindow"
+        ShowIconOnTitleBar="True"
+        ShowTitleBar="True"
+        Icon="/Dalfsen;component/Assets/WindowIcon.ico"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
+        Title="Dalfsen" Height="450" Width="800"
         DataContext="{Binding Path=MainWindowViewModel, Source={StaticResource ViewModelLocator}}">
 
     <Behaviors:Interaction.Triggers>
@@ -20,83 +24,106 @@
     </Behaviors:Interaction.Triggers>
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300" />
-            <ColumnDefinition Width="5" />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="20" />
-        </Grid.RowDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="20" />
+            </Grid.RowDefinitions>
 
-        <TreeView
-            x:Name="DirectoryBrowser"
-            Grid.Row="0" 
-            Grid.Column="0"
-            ItemsSource="{Binding Drives}"
-            VirtualizingPanel.IsVirtualizing="True"
-            VirtualizingPanel.VirtualizationMode="Standard"
-        >
-            <Behaviors:Interaction.Behaviors>
-                <behaviors:BindableSelectedItemBehavior SelectedItem="{Binding ElementName=ImageGrid, Path=DataContext.Directory}" />
-            </Behaviors:Interaction.Behaviors>
+            <TreeView
+                x:Name="DirectoryBrowser"
+                Grid.Row="0" 
+                Grid.Column="0"
+                ItemsSource="{Binding Drives}"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.VirtualizationMode="Standard"
+            >
+                <Behaviors:Interaction.Behaviors>
+                    <behaviors:BindableSelectedItemBehavior SelectedItem="{Binding ElementName=ImageGrid, Path=DataContext.Directory}" />
+                </Behaviors:Interaction.Behaviors>
 
-            <TreeView.Resources>
-                <Style TargetType="TreeViewItem">
-                    <Setter Property="behaviors:Behaviors.ExpandingBehavior" Value="{Binding LoadDirectoriesCommand}"/>
-                </Style>
-                <HierarchicalDataTemplate DataType="{x:Type viewmodels:DriveViewModel}" ItemsSource="{Binding Directories}">
-                    <StackPanel Orientation="Horizontal">
-                        <iconPacks:PackIconFontAwesome>
-                            <iconPacks:PackIconFontAwesome.Style>
-                                <Style TargetType="iconPacks:PackIconFontAwesome">
-                                    <Setter Property="Kind" Value="HddRegular" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TreeViewItem}, Path=IsExpanded}" Value="True">
-                                            <Setter Property="Kind" Value="HddRegular" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </iconPacks:PackIconFontAwesome.Style>
-                        </iconPacks:PackIconFontAwesome>
+                <TreeView.Resources>
+                    <Style TargetType="TreeViewItem">
+                        <Setter Property="behaviors:Behaviors.ExpandingBehavior" Value="{Binding LoadDirectoriesCommand}"/>
+                    </Style>
+                    <HierarchicalDataTemplate DataType="{x:Type viewmodels:DriveViewModel}" ItemsSource="{Binding Directories}">
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconFontAwesome>
+                                <iconPacks:PackIconFontAwesome.Style>
+                                    <Style TargetType="iconPacks:PackIconFontAwesome">
+                                        <Setter Property="Kind" Value="HddRegular" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TreeViewItem}, Path=IsExpanded}" Value="True">
+                                                <Setter Property="Kind" Value="HddRegular" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </iconPacks:PackIconFontAwesome.Style>
+                            </iconPacks:PackIconFontAwesome>
 
-                        <TextBlock Margin="0,0,10,0"/>
-                        <TextBlock Text="{Binding Name}" />
-                    </StackPanel>
-                </HierarchicalDataTemplate>
-                <HierarchicalDataTemplate DataType="{x:Type viewmodels:DirectoryViewModel}" ItemsSource="{Binding Directories}">
-                    <StackPanel Orientation="Horizontal">
-                        <iconPacks:PackIconFontAwesome Foreground="#f8d876">
-                            <iconPacks:PackIconFontAwesome.Style>
-                                <Style TargetType="iconPacks:PackIconFontAwesome">
-                                    <Setter Property="Kind" Value="FolderSolid" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TreeViewItem}, Path=IsExpanded}" Value="True">
-                                            <Setter Property="Kind" Value="FolderOpenSolid" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </iconPacks:PackIconFontAwesome.Style>
-                        </iconPacks:PackIconFontAwesome>
+                            <TextBlock Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding Name}" />
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type viewmodels:DirectoryViewModel}" ItemsSource="{Binding Directories}">
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconFontAwesome Foreground="#f8d876">
+                                <iconPacks:PackIconFontAwesome.Style>
+                                    <Style TargetType="iconPacks:PackIconFontAwesome">
+                                        <Setter Property="Kind" Value="FolderSolid" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TreeViewItem}, Path=IsExpanded}" Value="True">
+                                                <Setter Property="Kind" Value="FolderOpenSolid" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </iconPacks:PackIconFontAwesome.Style>
+                            </iconPacks:PackIconFontAwesome>
 
-                        <TextBlock Margin="0,0,10,0"/>
-                        <TextBlock Text="{Binding Name}" />
-                    </StackPanel>
-                </HierarchicalDataTemplate>
-            </TreeView.Resources>
-            <TreeView.ItemContainerStyle>
-                <Style TargetType="TreeViewItem">
-                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                </Style>
-            </TreeView.ItemContainerStyle>
-        </TreeView>
+                            <TextBlock Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding Name}" />
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                </TreeView.Resources>
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="TreeViewItem">
+                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                    </Style>
+                </TreeView.ItemContainerStyle>
+            </TreeView>
 
-        <GridSplitter Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" />
+            <GridSplitter Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" />
 
-        <views:ImageGridView x:Name="ImageGrid" Grid.Row="0" Grid.Column="2" />
+            <views:ImageGridView x:Name="ImageGrid" Grid.Row="0" Grid.Column="2" />
 
-        <views:StatusBarView Grid.Row="1" Grid.ColumnSpan="3" />
+            <views:StatusBarView Grid.Row="1" Grid.ColumnSpan="3" />
+        </Grid>
+
+
+        <simpleChildWindow:ChildWindow
+            DataContext="{Binding Path=ExporterViewModel, Source={StaticResource ViewModelLocator}}"
+                 IsOpen="{Binding IsExportWindowOpen}"
+                 HorizontalContentAlignment="Stretch"
+                 VerticalContentAlignment="Stretch"
+                 Padding="15"
+                 ChildWindowImage="None"
+                 IsModal="True"
+                 Title="Exporteren">
+            <Grid>
+                <StackPanel Orientation="Horizontal">
+                    <iconPacks:PackIconUnicons Kind="FileExport" />
+                    <TextBlock Margin="0,0,10,0"/>
+                    <TextBlock Text="Exporteren:" />
+                    <TextBlock Margin="0,0,10,0"/>
+                    <TextBlock Text="{Binding Count}" />
+                </StackPanel>
+            </Grid>
+        </simpleChildWindow:ChildWindow>
     </Grid>
 </mah:MetroWindow>

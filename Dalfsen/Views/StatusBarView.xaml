@@ -15,6 +15,7 @@
                     Value="{Binding Value}"
                     IsIndeterminate="{Binding Indeterminate}"
                     Foreground="White"
+                    Background="Transparent"
                     Width="200" Height="20" />
         </StatusBarItem>
         <StatusBarItem Width="120" DockPanel.Dock="Right">
