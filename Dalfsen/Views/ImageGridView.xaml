@@ -52,14 +52,14 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="Pad">
+                <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Image Source="{Binding FullPath, Mode=OneWay}" Stretch="Uniform" Width="128" Height="128" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Binding="{Binding Name, Mode=OneWay}" Header="Naam" />
+                <DataGridTextColumn Binding="{Binding FullPath, Mode=OneWay}" Header="Pad" />
                 <DataGridTextColumn Binding="{Binding Dimensions, Mode=OneWay}" Header="Grootte" />
                 <DataGridTextColumn Binding="{Binding Created, Mode=OneWay}" Header="Gemaakt op" />
                 <DataGridTextColumn Binding="{Binding Modified, Mode=OneWay}" Header="Gewijzigd op" />
