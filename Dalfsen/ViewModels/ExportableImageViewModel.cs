@@ -70,7 +70,7 @@ namespace Dalfsen.ViewModels
             set { SetProperty(ref shouldExport, value); }
         }
 
-        public string Directory { get;  }
+        public string Directory { get; }
 
         public string FullPath { get; }
         public string Name { get; }
@@ -81,6 +81,22 @@ namespace Dalfsen.ViewModels
         public string Dimensions
         {
             get { return $"{Width} x {Height}"; }
+        }
+        public string Size
+        {
+            get
+            {
+                string[] suf = { "B", "KB", "MB", "GB", "TB", "PB", "EB" }; //Longs run out around EB
+                if (file.Length == 0)
+                {
+                    return "0" + suf[0];
+                }
+
+                long bytes = Math.Abs(file.Length);
+                int place = Convert.ToInt32(Math.Floor(Math.Log(bytes, 1024)));
+                double num = Math.Round(bytes / Math.Pow(1024, place), 1);
+                return (Math.Sign(file.Length) * num).ToString() + suf[place];
+            }
         }
 
         public void CopyTo(string targetDirectory)
