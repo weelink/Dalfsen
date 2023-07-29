@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Windows.Media.Imaging;
 
@@ -10,6 +9,7 @@ namespace Dalfsen.ViewModels
         private readonly FileInfo file;
         private readonly ExporterViewModel exporter;
         private bool isSelected;
+        private bool shouldExport;
 
         public ExportableImageViewModel(DirectoryInfo directory, FileInfo file, ExporterViewModel exporter)
         {
@@ -17,12 +17,15 @@ namespace Dalfsen.ViewModels
             this.exporter = exporter;
             Name = Path.GetRelativePath(directory.FullName, file.FullName);
             FullPath = file.FullName!;
+            Directory = file.Directory!.FullName!;
             isSelected = exporter.IsSelected(this);
 
             PropertyChanged += (_, args) =>
             {
                 if (args.PropertyName == nameof(IsSelected))
                 {
+                    ShouldExport = IsSelected;
+
                     if (IsSelected)
                     {
                         exporter.Select(this);
@@ -44,10 +47,8 @@ namespace Dalfsen.ViewModels
                 }
 
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                Debug.WriteLine(FullPath);
-                throw;
             }
         }
 
@@ -57,6 +58,14 @@ namespace Dalfsen.ViewModels
             set { SetProperty(ref isSelected, value); }
         }
 
+        public bool ShouldExport
+        {
+            get { return shouldExport; }
+            set { SetProperty(ref shouldExport, value); }
+        }
+
+        public string Directory { get;  }
+
         public string FullPath { get; }
         public string Name { get; }
         public int Height { get; }
@@ -64,6 +73,60 @@ namespace Dalfsen.ViewModels
         public string Dimensions
         {
             get { return $"{Width} x {Height}"; }
+        }
+
+        public void CopyTo(string targetDirectory)
+        {
+            var target = DetermineTarget(targetDirectory);
+            if (target == null)
+            {
+                return;
+            }
+
+            try
+            {
+                File.Copy(FullPath, target, true);
+            }
+            catch (Exception)
+            {
+            }
+        }
+
+        private string? DetermineTarget(string targetDirectory)
+        {
+            string target = Path.Combine(targetDirectory, file.Name);
+
+            if (File.Exists(target))
+            {
+                if (exporter.ConflictSolutions[0])
+                {
+                    return EnsureUniqueFileName(targetDirectory);
+                }
+                if (exporter.ConflictSolutions[1])
+                {
+                    return target;
+                }
+                if (exporter.ConflictSolutions[2])
+                {
+                    return null;
+                }
+            }
+
+            return target;
+        }
+
+        private string EnsureUniqueFileName(string targetDirectory)
+        {
+            var filename = Path.GetFileNameWithoutExtension(file.Name);
+            var extension = Path.GetExtension(file.Name);
+
+            int i = 1;
+            while (File.Exists(Path.Combine(targetDirectory, $"{filename}_{i}{extension}")))
+            {
+                i++;
+            }
+
+            return Path.Combine(targetDirectory, $"{filename}_{i}{extension}");
         }
 
         public override int GetHashCode()

@@ -4,9 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-             xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors" xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks" xmlns:simpleChildWindow="http://metro.mahapps.com/winfx/xaml/simplechildwindow"
+             xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
              DataContext="{Binding Path=ImageGridViewModel, Source={StaticResource ViewModelLocator}}"
              mc:Ignorable="d" 
+             IsEnabled="{Binding HasDirectory}"
              d:DesignHeight="450" d:DesignWidth="800">
     <Behaviors:Interaction.Triggers>
         <Behaviors:EventTrigger EventName="PropertyChanged" SourceObject="{Binding}">
@@ -20,9 +22,10 @@
                 <mah:ToggleSwitch IsOn="{Binding IncludeSubdirectories}" Content="Toon submappen" Focusable="False" DockPanel.Dock="Left" />
 
                 <mah:Badged DockPanel.Dock="Right" Badge="{Binding Exporter.Count}" BadgeBackground="Red" Margin="0,0,10,0">
-                    <Button Style="{StaticResource MahApps.Styles.Button.Square.Accent}" IsEnabled="{Binding Exporter.HasSelectedItems}" Command="{Binding Path=ExporterViewModel.ExportCommand, Source={StaticResource ViewModelLocator}}">
+                    <Button Style="{StaticResource MahApps.Styles.Button.Square.Accent}" IsEnabled="{Binding Exporter.HasSelectedItems}"
+                            Command="{Binding Path=ExporterViewModel.ShowExportCommand, Source={StaticResource ViewModelLocator}}">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Exporteren" />
+                            <TextBlock Text="Exporteren..." />
                             <TextBlock Margin="0,0,10,0"/>
                             <iconPacks:PackIconUnicons Kind="FileExport" />
                         </StackPanel>

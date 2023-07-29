@@ -28,12 +28,24 @@ namespace Dalfsen.ViewModels
             this.statusIndicator = statusIndicator;
             Exporter = exporter;
             Images = new SmartCollection<ExportableImageViewModel>();
-            LoadImagesCommand = new AsyncDelegateCommand(() => Task.Run(() => LoadImagesAsync()));
+            LoadImagesCommand = new AsyncDelegateCommand(() => Task.Run(() =>
+            {
+                try
+                {
+                    Application.Current.Dispatcher.Invoke(() => Mouse.OverrideCursor = Cursors.Wait);
+                    LoadImages();
+                }
+                finally
+                {
+                    Application.Current.Dispatcher.Invoke(() => Mouse.OverrideCursor = null);
+                }
+            }));
 
             PropertyChanged += (sender, args) =>
             {
                 if (args.PropertyName == nameof(Directory) || args.PropertyName == nameof(IncludeSubdirectories))
                 {
+                    OnPropertyChanged(nameof(HasDirectory));
                     cancellationTokenSource?.Cancel();
                 }
             };
@@ -65,6 +77,11 @@ namespace Dalfsen.ViewModels
             set { SetProperty(ref numberOfFilesChecked, value); }
         }
 
+        public bool HasDirectory
+        {
+            get { return Directory != null; }
+        }
+
         public bool? AllSelected
         {
             get { return allSelected; }
@@ -74,7 +91,7 @@ namespace Dalfsen.ViewModels
         public SmartCollection<ExportableImageViewModel> Images { get; }
         public ICommand LoadImagesCommand { get; }
 
-        private void LoadImagesAsync()
+        private void LoadImages()
         {
             if (Directory == null)
             {
@@ -104,7 +121,9 @@ namespace Dalfsen.ViewModels
                     {
                         IgnoreInaccessible = true,
                         RecurseSubdirectories = IncludeSubdirectories
-                    }).ToList();
+                    })
+                        .Where(file => IsImage(file, cancellationToken) && file.Length > 0)
+                        .ToList();
 
                     Application.Current.Dispatcher.Invoke(() =>
                     {
@@ -112,7 +131,7 @@ namespace Dalfsen.ViewModels
                         statusIndicator.Maximum = files.Count();
                     }, DispatcherPriority.Normal, cancellationToken);
 
-                    IEnumerable<ExportableImageViewModel> viewModels = files.Chunk(100).SelectMany(subfiles => NewMethod(Directory.Directory, subfiles, cancellationToken)).ToList();
+                    IEnumerable<ExportableImageViewModel> viewModels = files.Chunk(100).SelectMany(subfiles => CreateImages(Directory.Directory, subfiles, cancellationToken)).ToList();
 
                     Application.Current.Dispatcher.Invoke(() => Images.AddRange(viewModels), DispatcherPriority.Normal, cancellationToken);
                 }
@@ -130,9 +149,9 @@ namespace Dalfsen.ViewModels
             }
         }
 
-        private IEnumerable<ExportableImageViewModel> NewMethod(DirectoryInfo directory, FileInfo[] subfiles, CancellationToken cancellationToken)
+        private IEnumerable<ExportableImageViewModel> CreateImages(DirectoryInfo directory, FileInfo[] subfiles, CancellationToken cancellationToken)
         {
-            var files = subfiles.Where(file => file.Length > 0 && IsImage(file, cancellationToken)).Select(file => new ExportableImageViewModel(directory, file, Exporter)).ToList();
+            var files = subfiles.Select(file => new ExportableImageViewModel(directory, file, Exporter)).ToList();
 
             Application.Current.Dispatcher.Invoke(() => statusIndicator.Value += subfiles.Length);
 
@@ -149,4 +168,3 @@ namespace Dalfsen.ViewModels
         }
     }
 }
- 
