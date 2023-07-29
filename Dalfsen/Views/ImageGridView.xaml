@@ -43,7 +43,6 @@
                 AutoGenerateColumns="False"
                 CanUserReorderColumns="False"
                 CanUserSortColumns="False"
-                HeadersVisibility="None"
                 ItemsSource="{Binding Images}">
             <DataGrid.Columns>
                 <DataGridTemplateColumn>
@@ -53,15 +52,17 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Pad">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Image Source="{Binding FullPath, Mode=OneWay}" Stretch="Uniform" Width="128" Height="128" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Binding="{Binding Name, Mode=OneWay}" />
-                <DataGridTextColumn Binding="{Binding Dimensions, Mode=OneWay}"/>
+                <DataGridTextColumn Binding="{Binding Name, Mode=OneWay}" Header="Naam" />
+                <DataGridTextColumn Binding="{Binding Dimensions, Mode=OneWay}" Header="Grootte" />
+                <DataGridTextColumn Binding="{Binding Created, Mode=OneWay}" Header="Gemaakt op" />
+                <DataGridTextColumn Binding="{Binding Modified, Mode=OneWay}" Header="Gewijzigd op" />
             </DataGrid.Columns>
         </DataGrid>
     </DockPanel>

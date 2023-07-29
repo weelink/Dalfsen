@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Windows.Media.Imaging;
 
@@ -6,6 +7,8 @@ namespace Dalfsen.ViewModels
 {
     public class ExportableImageViewModel : ViewModel
     {
+        private static readonly CultureInfo DutchCulture = new CultureInfo("nl-NL");
+
         private readonly FileInfo file;
         private readonly ExporterViewModel exporter;
         private bool isSelected;
@@ -39,6 +42,9 @@ namespace Dalfsen.ViewModels
 
             try
             {
+                Created = file.CreationTime.ToString(DutchCulture.DateTimeFormat);
+                Modified = file.LastWriteTime.ToString(DutchCulture.DateTimeFormat);
+
                 using (FileStream imageStream = File.OpenRead(FullPath))
                 {
                     BitmapDecoder decoder = BitmapDecoder.Create(imageStream, BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.Default);
@@ -68,6 +74,8 @@ namespace Dalfsen.ViewModels
 
         public string FullPath { get; }
         public string Name { get; }
+        public string? Modified { get; }
+        public string? Created { get; }
         public int Height { get; }
         public int Width { get; }
         public string Dimensions
