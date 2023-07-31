@@ -49,7 +49,7 @@
                 VirtualizingPanel.VirtualizationMode="Standard"
             >
                 <Behaviors:Interaction.Behaviors>
-                    <behaviors:BindableSelectedItemBehavior SelectedItem="{Binding ElementName=ImageGrid, Path=DataContext.Directory}" />
+                    <behaviors:BindableSelectedItemBehavior SelectedItem="{Binding ElementName=FileGrid, Path=DataContext.Directory}" />
                 </Behaviors:Interaction.Behaviors>
 
                 <TreeView.Resources>
@@ -104,7 +104,7 @@
 
             <GridSplitter Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" />
 
-            <views:ImageGridView x:Name="ImageGrid" Grid.Row="0" Grid.Column="2" />
+            <views:FileGridView x:Name="FileGrid" Grid.Row="0" Grid.Column="2" />
 
             <views:StatusBarView Grid.Row="1" Grid.ColumnSpan="3" />
         </Grid>
@@ -127,7 +127,7 @@
                 </Grid.RowDefinitions>
 
                 <GroupBox Grid.Row="1" Margin="50,10" Header="Selectie">
-                    <ListView ItemsSource="{Binding Images}">
+                    <ListView ItemsSource="{Binding Files}">
                         <ListView.View>
                             <GridView>
                                 <GridViewColumn Header="Exporteren?">
@@ -138,24 +138,23 @@
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
 
-                                <GridViewColumn Width="128">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <Image Source="{Binding FullPath, Mode=OneWay}" Stretch="Uniform" Width="128" Height="128" />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Bestandsnaam" DisplayMemberBinding="{Binding Name}" />
-                                <GridViewColumn Header="Pad" DisplayMemberBinding="{Binding Directory}" Width="250" />
-                                <GridViewColumn Header="Grootte" DisplayMemberBinding="{Binding Dimensions}" />
+                                <GridViewColumn Width="128" CellTemplateSelector="{StaticResource ExportableFileTemplateSelector}" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Name, Mode=OneWay}" Header="Naam" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Extension, Mode=OneWay}" Header="Bestandstype" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Dimensions, Mode=OneWay}" Header="   " />
+                                <GridViewColumn DisplayMemberBinding="{Binding Size, Mode=OneWay}" Header="Grootte" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Created, Mode=OneWay}" Header="Gemaakt op" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Modified, Mode=OneWay}" Header="Gewijzigd op" />
+                                <GridViewColumn DisplayMemberBinding="{Binding Directory, Mode=OneWay}" Header="Pad" />
                             </GridView>
                         </ListView.View>
                     </ListView>
                 </GroupBox>
 
                 <GroupBox Grid.Row="0" Margin="50,10" Header="Instellingen">
-                    <Grid HorizontalAlignment="Left" FocusManager.FocusedElement="{Binding ElementName=TargetDirectory}">
+                    <Grid HorizontalAlignment="Stretch" FocusManager.FocusedElement="{Binding ElementName=TargetDirectory}">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
@@ -163,25 +162,34 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <Label Grid.Row="0" Grid.Column="0">Doelmap:</Label>
+                        <TextBox x:Name="TargetDirectory" Text="{Binding TargetDirectory,Mode=TwoWay}" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" />
 
-                        <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,5" Orientation="Horizontal">
-                            <TextBox x:Name="TargetDirectory" Text="{Binding TargetDirectory,Mode=TwoWay}" Width="400"  />
-                            <Button Content="Bladeren..."
-                                Command="{Binding BrowseDirectoryCommand}"
-                                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=local:MainWindow}}" />
-                        </StackPanel>
+                        <Button Content="Bladeren..."
+                            Command="{Binding BrowseDirectoryCommand}"
+                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=local:MainWindow}}"
+                            Grid.Row="1" Grid.Column="1" />
 
-                        <Label Grid.Row="1" Grid.Column="0">Conflictoplossing:</Label>
+                        <Label Grid.Row="2" Grid.Column="0">Conflictoplossing:</Label>
 
-                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,10">
+                        <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,10">
                             <RadioButton GroupName="conflict" IsChecked="{Binding ConflictSolutions[0], Mode=TwoWay}">Automatisch hernoemen</RadioButton>
                             <RadioButton GroupName="conflict" IsChecked="{Binding ConflictSolutions[1], Mode=TwoWay}">Doelbestand overschrijven</RadioButton>
                             <RadioButton GroupName="conflict" IsChecked="{Binding ConflictSolutions[2], Mode=TwoWay}">Bronbestand overslaan</RadioButton>
                         </StackPanel>
 
-                        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+                        <CheckBox Grid.Row="3" Grid.Column="0" Content="Opslaan als Excel?" x:Name="ExportAsExcel" IsChecked="{Binding ExportAsExcel}" />
+                        <TextBox Text="{Binding ExcelFileLocation,Mode=TwoWay}" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" />
+                        <Button Content="Bladeren..."
+                            Command="{Binding BrowseForExcelFileCommand}"
+                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=local:MainWindow}}"
+                            Grid.Row="4" Grid.Column="1" IsEnabled="{Binding ElementName=ExportAsExcel, Path=IsChecked}" />
+
+                        <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Margin="0,10">
                             <Button Style="{StaticResource MahApps.Styles.Button.Square.Accent}"
                                 IsEnabled="{Binding IsValid}"
                                 Command="{Binding ExportCommand}"

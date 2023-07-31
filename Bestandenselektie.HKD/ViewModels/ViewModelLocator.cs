@@ -7,12 +7,12 @@
             ExporterViewModel = new ExporterViewModel();
             StatusBarViewModel = new StatusBarViewModel();
             MainWindowViewModel = new MainWindowViewModel();
-            ImageGridViewModel = new ImageGridViewModel(StatusBarViewModel, ExporterViewModel);
+            FileGridViewModel = new FileGridViewModel(StatusBarViewModel, ExporterViewModel);
         }
 
         public MainWindowViewModel MainWindowViewModel { get; }
         public StatusBarViewModel StatusBarViewModel { get; }
-        public ImageGridViewModel ImageGridViewModel { get; }
+        public FileGridViewModel FileGridViewModel { get; }
         public ExporterViewModel ExporterViewModel { get; }
     }
 }

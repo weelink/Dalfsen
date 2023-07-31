@@ -3,9 +3,9 @@ using System.Windows;
 
 namespace Bestandenselektie.HKD.Views
 {
-    public partial class ImageGridView
+    public partial class FileGridView
     {
-        public ImageGridView()
+        public FileGridView()
         {
             InitializeComponent();
         }
