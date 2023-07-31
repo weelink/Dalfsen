@@ -1,0 +1,201 @@
+﻿<mah:MetroWindow
+        x:Class="Bestandenselektie.HKD.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewmodels="clr-namespace:Bestandenselektie.HKD.ViewModels"
+        xmlns:views="clr-namespace:Bestandenselektie.HKD.Views"
+        xmlns:local="clr-namespace:Bestandenselektie.HKD"
+        xmlns:behaviors="clr-namespace:Bestandenselektie.HKD.Behaviors"
+        xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:simpleChildWindow="http://metro.mahapps.com/winfx/xaml/simplechildwindow"
+        ShowIconOnTitleBar="True"
+        ShowTitleBar="True"
+        Icon="/Bestandenselektie.HKD;component/Assets/WindowIcon.ico"
+        mc:Ignorable="d"
+        Title="Bestandenselektie HKD"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        DataContext="{Binding Path=MainWindowViewModel, Source={StaticResource ViewModelLocator}}">
+
+    <Behaviors:Interaction.Triggers>
+        <Behaviors:EventTrigger EventName="Loaded">
+            <Behaviors:InvokeCommandAction Command="{Binding LoadCommand}"/>
+        </Behaviors:EventTrigger>
+    </Behaviors:Interaction.Triggers>
+
+    <Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="24" />
+            </Grid.RowDefinitions>
+
+            <TreeView
+                x:Name="DirectoryBrowser"
+                Grid.Row="0" 
+                Grid.Column="0"
+                ItemsSource="{Binding Drives}"
+                VirtualizingPanel.IsVirtualizing="True"
+                VirtualizingPanel.VirtualizationMode="Standard"
+            >
+                <Behaviors:Interaction.Behaviors>
+                    <behaviors:BindableSelectedItemBehavior SelectedItem="{Binding ElementName=ImageGrid, Path=DataContext.Directory}" />
+                </Behaviors:Interaction.Behaviors>
+
+                <TreeView.Resources>
+                    <Style TargetType="TreeViewItem">
+                        <Setter Property="behaviors:Behaviors.ExpandingBehavior" Value="{Binding LoadDirectoriesCommand}"/>
+                    </Style>
+                    <HierarchicalDataTemplate DataType="{x:Type viewmodels:DriveViewModel}" ItemsSource="{Binding Directories}">
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconFontAwesome>
+                                <iconPacks:PackIconFontAwesome.Style>
+                                    <Style TargetType="iconPacks:PackIconFontAwesome">
+                                        <Setter Property="Kind" Value="HddRegular" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TreeViewItem}, Path=IsExpanded}" Value="True">
+                                                <Setter Property="Kind" Value="HddRegular" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </iconPacks:PackIconFontAwesome.Style>
+                            </iconPacks:PackIconFontAwesome>
+
+                            <TextBlock Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding Name}" />
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type viewmodels:DirectoryViewModel}" ItemsSource="{Binding Directories}">
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconFontAwesome Foreground="#f8d876">
+                                <iconPacks:PackIconFontAwesome.Style>
+                                    <Style TargetType="iconPacks:PackIconFontAwesome">
+                                        <Setter Property="Kind" Value="FolderSolid" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TreeViewItem}, Path=IsExpanded}" Value="True">
+                                                <Setter Property="Kind" Value="FolderOpenSolid" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </iconPacks:PackIconFontAwesome.Style>
+                            </iconPacks:PackIconFontAwesome>
+
+                            <TextBlock Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding Name}" />
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                </TreeView.Resources>
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="TreeViewItem">
+                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                    </Style>
+                </TreeView.ItemContainerStyle>
+            </TreeView>
+
+            <GridSplitter Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" />
+
+            <views:ImageGridView x:Name="ImageGrid" Grid.Row="0" Grid.Column="2" />
+
+            <views:StatusBarView Grid.Row="1" Grid.ColumnSpan="3" />
+        </Grid>
+
+
+        <simpleChildWindow:ChildWindow
+            DataContext="{Binding Path=ExporterViewModel, Source={StaticResource ViewModelLocator}}"
+            IsOpen="{Binding IsExportWindowOpen}"
+            HorizontalContentAlignment="Stretch"
+            VerticalContentAlignment="Stretch"
+            Padding="15"
+            ChildWindowImage="None"
+            IsModal="True"
+            ShowCloseButton="True"
+            Title="Exporteren">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <GroupBox Grid.Row="1" Margin="50,10" Header="Selectie">
+                    <ListView ItemsSource="{Binding Images}">
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Exporteren?">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding Path=ShouldExport, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+
+                                <GridViewColumn Width="128">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Image Source="{Binding FullPath, Mode=OneWay}" Stretch="Uniform" Width="128" Height="128" />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Bestandsnaam" DisplayMemberBinding="{Binding Name}" />
+                                <GridViewColumn Header="Pad" DisplayMemberBinding="{Binding Directory}" Width="250" />
+                                <GridViewColumn Header="Grootte" DisplayMemberBinding="{Binding Dimensions}" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </GroupBox>
+
+                <GroupBox Grid.Row="0" Margin="50,10" Header="Instellingen">
+                    <Grid HorizontalAlignment="Left" FocusManager.FocusedElement="{Binding ElementName=TargetDirectory}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0">Doelmap:</Label>
+
+                        <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,0,5" Orientation="Horizontal">
+                            <TextBox x:Name="TargetDirectory" Text="{Binding TargetDirectory,Mode=TwoWay}" Width="400"  />
+                            <Button Content="Bladeren..."
+                                Command="{Binding BrowseDirectoryCommand}"
+                                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=local:MainWindow}}" />
+                        </StackPanel>
+
+                        <Label Grid.Row="1" Grid.Column="0">Conflictoplossing:</Label>
+
+                        <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,10">
+                            <RadioButton GroupName="conflict" IsChecked="{Binding ConflictSolutions[0], Mode=TwoWay}">Automatisch hernoemen</RadioButton>
+                            <RadioButton GroupName="conflict" IsChecked="{Binding ConflictSolutions[1], Mode=TwoWay}">Doelbestand overschrijven</RadioButton>
+                            <RadioButton GroupName="conflict" IsChecked="{Binding ConflictSolutions[2], Mode=TwoWay}">Bronbestand overslaan</RadioButton>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+                            <Button Style="{StaticResource MahApps.Styles.Button.Square.Accent}"
+                                IsEnabled="{Binding IsValid}"
+                                Command="{Binding ExportCommand}"
+                                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=local:MainWindow}}">
+                                <TextBlock Text="START EXPORTEREN" />
+                            </Button>
+
+                            <TextBlock Margin="0,0,10,0"/>
+
+                            <Button Content="Annuleren" Command="{Binding CancelCommand}" />
+                        </StackPanel>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </simpleChildWindow:ChildWindow>
+    </Grid>
+</mah:MetroWindow>

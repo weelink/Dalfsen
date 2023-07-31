@@ -1,4 +1,4 @@
-name: "Deploy Dalfsen"
+name: "Deploy Bestandenselektie HKD"
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - "dalfsen/v*"
 
 env:
-  PROJECT_PATH: Dalfsen/Dalfsen.csproj
+  PROJECT_PATH: Bestandenselektie.HKD/Bestandenselektie.HKD.csproj
 
 jobs:
   deploy:
@@ -33,5 +33,5 @@ jobs:
       - uses: csexton/release-asset-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          pattern: Dalfsen/bin/Release/net7.0-windows/win-x64/publish/*.exe
+          pattern: Bestandenselektie.HKD/bin/Release/net7.0-windows/win-x64/publish/*.exe
           release-url: ${{ steps.create_release.outputs.upload_url }}
