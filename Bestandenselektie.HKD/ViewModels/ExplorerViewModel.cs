@@ -70,7 +70,7 @@ namespace Bestandenselektie.HKD.ViewModels
 
         private IEnumerable<DirectoryViewModel> LoadDirectories()
         {
-            if (Directories.Count != 1 && Directories[0] != null)
+            if (Directories.Count != 1 || Directories[0] != null)
             {
                 return Directories;
             }
