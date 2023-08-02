@@ -31,6 +31,7 @@ namespace Bestandenselektie.HKD.ViewModels
         private bool isExportWindowOpen;
         private bool isValid;
         private bool exportAsExcel;
+        private bool markDirectoriesAsProcessed;
         private readonly ProgressDialog dialog;
         private readonly Storage storage;
         private MetroWindow? parent;
@@ -53,6 +54,7 @@ namespace Bestandenselektie.HKD.ViewModels
             ConflictResolutions = settings.ConflictResolutions.ToArray();
             ExportAsExcel = settings.ExportToExcel;
             ExcelFileLocation = settings.ExcelFilename;
+            MarkDirectoriesAsProcessed = settings.MarkDirectoriesAsProcessed;
 
             PropertyChanged += ExporterViewModel_PropertyChanged;
             dialog = new ProgressDialog()
@@ -110,21 +112,26 @@ namespace Bestandenselektie.HKD.ViewModels
             List<ExplorerViewModel> directories = Files.Select(x => x.ParentViewModel).Distinct().ToList();
             var settings = storage.ReadSettings();
 
-            settings.MarkAsProcessed(directories.Select(directory => directory.Directory));
             settings.ConflictResolutions = ConflictResolutions.ToList();
             settings.ExportDirectory = TargetDirectory;
             settings.ExportToExcel = ExportAsExcel;
             settings.ExcelFilename = ExcelFileLocation;
+            settings.MarkDirectoriesAsProcessed = MarkDirectoriesAsProcessed;
 
             storage.Write(settings);
 
-            Application.Current.Dispatcher.Invoke(() =>
+            if (MarkDirectoriesAsProcessed)
             {
-                foreach (var directory in directories)
+                settings.MarkAsProcessed(directories.Select(directory => directory.Directory));
+
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    directory.IsProcessed = true;
-                }
-            });
+                    foreach (var directory in directories)
+                    {
+                        directory.IsProcessed = true;
+                    }
+                });
+            }
 
             if (ExportAsExcel && !string.IsNullOrEmpty(ExcelFileLocation))
             {
@@ -224,7 +231,18 @@ namespace Bestandenselektie.HKD.ViewModels
                 worksheetPart.Worksheet = new Worksheet(sheetData);
 
                 WorkbookStylesPart stylePart = workbookPart.AddNewPart<WorkbookStylesPart>();
-                Stylesheet styleSheet = new Stylesheet(GenerateCellFormats());
+                NumberingFormats nfs = new NumberingFormats();
+
+                NumberingFormat nf;
+                nf = new NumberingFormat();
+                nf.NumberFormatId = 165;
+                nf.FormatCode = "dddd\\ d\\ mmmm\\ yyyy";
+                nfs.Append(nf);
+
+                Stylesheet styleSheet = new Stylesheet(GenerateCellFormats())
+                {
+                    NumberingFormats = nfs
+                };
                 stylePart.Stylesheet = styleSheet;
                 stylePart.Stylesheet.Save();
 
@@ -243,7 +261,7 @@ namespace Bestandenselektie.HKD.ViewModels
                     "Grootte (in bytes)",
                     "Gewijzigd d.d.",
                     "Gemaakt d.d.",
-                    "Geexprteerd d.d.",
+                    "Geëxporteerd d.d.",
                 };
 
                 foreach (string column in columns)
@@ -266,7 +284,11 @@ namespace Bestandenselektie.HKD.ViewModels
                 // int
                 new CellFormat(new Alignment()) { NumberFormatId = 1 },
                 // Date
-                new CellFormat(new Alignment()) { NumberFormatId = 15, ApplyNumberFormat = true }
+                new CellFormat(new Alignment())
+                {
+                    NumberFormatId = 165,
+                    ApplyNumberFormat = true
+                }
             );
 
             return cellFormats;
@@ -343,6 +365,12 @@ namespace Bestandenselektie.HKD.ViewModels
         {
             get { return exportAsExcel; }
             set { SetProperty(ref exportAsExcel, value); }
+        }
+
+        public bool MarkDirectoriesAsProcessed
+        {
+            get { return markDirectoriesAsProcessed; }
+            set { SetProperty(ref markDirectoriesAsProcessed, value); }
         }
 
         public bool IsExportWindowOpen

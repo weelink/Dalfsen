@@ -1,9 +1,11 @@
 ﻿using Bestandenselektie.HKD.Collections;
 using Bestandenselektie.HKD.Commands;
 using Bestandenselektie.HKD.Services;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Bestandenselektie.HKD.ViewModels
@@ -42,9 +44,36 @@ namespace Bestandenselektie.HKD.ViewModels
         public ICommand LoadDirectoriesCommand { get; }
         public DirectoryInfo Directory { get; }
 
-        private void LoadDirectories()
+        internal ExplorerViewModel? GetDirectoryViewModelFor(FileInfo file)
         {
-            Directories.Clear();
+            if (Directory.FullName == file.DirectoryName)
+            {
+                return this;
+            }
+
+            var directories = LoadDirectories();
+            DirectoryViewModel? directory = directories.SingleOrDefault(directory => directory.Directory.FullName == file.DirectoryName);
+
+            if (directory != null)
+            {
+                return directory;
+            }
+
+            directory = directories.FirstOrDefault(directory => file.DirectoryName!.StartsWith(directory.Directory.FullName, StringComparison.InvariantCultureIgnoreCase));
+            if (directory != null)
+            {
+                return directory.GetDirectoryViewModelFor(file);
+            }
+
+            return null;
+        }
+
+        private IEnumerable<DirectoryViewModel> LoadDirectories()
+        {
+            if (Directories.Count != 1 && Directories[0] != null)
+            {
+                return Directories;
+            }
 
             IEnumerable<DirectoryInfo> directories = Directory.EnumerateDirectories("*", new EnumerationOptions
             {
@@ -52,9 +81,15 @@ namespace Bestandenselektie.HKD.ViewModels
                 RecurseSubdirectories = false
             });
 
-            IEnumerable<DirectoryViewModel> directoryViewModels = directories.Select(directory => new DirectoryViewModel(directory, settings)).ToList();
+            IEnumerable<DirectoryViewModel> directoryViewModels = directories.Select(directory => DirectoryViewModel.Get(directory, settings)).ToList();
 
-            Directories.AddRange(directoryViewModels);
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Directories.Clear();
+                Directories.AddRange(directoryViewModels);
+            });
+
+            return directoryViewModels;
         }
     }
 }

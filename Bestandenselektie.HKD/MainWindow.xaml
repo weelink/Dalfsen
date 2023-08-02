@@ -9,8 +9,10 @@
         xmlns:local="clr-namespace:Bestandenselektie.HKD"
         xmlns:behaviors="clr-namespace:Bestandenselektie.HKD.Behaviors"
         xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:simpleChildWindow="http://metro.mahapps.com/winfx/xaml/simplechildwindow" xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks" xmlns:viewmodels="clr-namespace:Bestandenselektie.HKD.ViewModels"
-    ShowIconOnTitleBar="True"
+        xmlns:simpleChildWindow="http://metro.mahapps.com/winfx/xaml/simplechildwindow"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:viewmodels="clr-namespace:Bestandenselektie.HKD.ViewModels"
+        ShowIconOnTitleBar="True"
         ShowTitleBar="True"
         Icon="/Bestandenselektie.HKD;component/Assets/WindowIcon.ico"
         mc:Ignorable="d"
@@ -143,6 +145,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <Label Grid.Row="0" Grid.Column="0">Doelmap:</Label>
                         <TextBox x:Name="TargetDirectory" Text="{Binding TargetDirectory,Mode=TwoWay}" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" />
@@ -160,7 +163,7 @@
                             <RadioButton GroupName="conflict" IsChecked="{Binding ConflictResolutions[2], Mode=TwoWay}">Bronbestand overslaan</RadioButton>
                         </StackPanel>
 
-                        <mah:ToggleSwitch x:Name="ExportAsExcel" Grid.Row="3" Grid.Column="0" IsOn="{Binding ExportAsExcel}" Focusable="False" Content="Opslaan als Excel" />
+                        <mah:ToggleSwitch x:Name="ExportAsExcel" Grid.Row="3" Grid.Column="0" IsOn="{Binding ExportAsExcel}" Focusable="False" Content="Opslaan als Excel" Margin="0,0,0,10" />
 
                         <TextBox Text="{Binding ExcelFileLocation,Mode=TwoWay}" IsEnabled="{Binding ElementName=ExportAsExcel, Path=IsOn}" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" />
                         <Button Content="Bladeren..."
@@ -168,7 +171,9 @@
                             CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=local:MainWindow}}"
                             Grid.Row="4" Grid.Column="1" IsEnabled="{Binding ElementName=ExportAsExcel, Path=IsOn}" />
 
-                        <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Margin="0,10">
+                        <mah:ToggleSwitch Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" IsOn="{Binding MarkDirectoriesAsProcessed}" Focusable="False" Content='Markeer de gekozen mappen als "Verwerkt"' />
+
+                        <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" Margin="0,10">
                             <Button Style="{StaticResource MahApps.Styles.Button.Square.Accent}"
                                 IsEnabled="{Binding IsValid}"
                                 Command="{Binding ExportCommand}"

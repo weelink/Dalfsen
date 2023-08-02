@@ -33,6 +33,7 @@ namespace Bestandenselektie.HKD.Services
         public string? ExportDirectory { get; set; }
         public HashSet<string> ProcessedDirectories { get; set; }
         public bool ExportToExcel { get; set; }
+        public bool MarkDirectoriesAsProcessed { get; set; }
         public string? ExcelFilename { get; set; }
     }
 }

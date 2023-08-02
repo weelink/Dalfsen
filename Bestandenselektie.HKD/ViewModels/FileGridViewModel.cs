@@ -2,6 +2,7 @@
 using Bestandenselektie.HKD.Commands;
 using Bestandenselektie.HKD.Extensions;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -286,7 +287,7 @@ namespace Bestandenselektie.HKD.ViewModels
                     IEnumerable<ExportableFileViewModel> viewModels =
                         files
                             .Chunk(100)
-                            .SelectMany(subfiles => CreateFiles(subfiles, cancellationToken))
+                            .SelectMany(subfiles => CreateFiles(subfiles))
                             .ToList();
 
                     Application.Current.Dispatcher.Invoke(() => Files.AddRange(viewModels), DispatcherPriority.Normal, cancellationToken);
@@ -296,16 +297,14 @@ namespace Bestandenselektie.HKD.ViewModels
                 }
                 finally
                 {
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        statusIndicator.Reset();
-                    });
+                    Application.Current.Dispatcher.Invoke(() => statusIndicator.Reset());
                 }
+
                 cancellationTokenSource = null;
             }
         }
 
-        private IEnumerable<ExportableFileViewModel> CreateFiles(FileInfo[] subfiles, CancellationToken cancellationToken)
+        private IEnumerable<ExportableFileViewModel> CreateFiles(FileInfo[] subfiles)
         {
             var files = subfiles.Select(file => CreateExportableVieModel(file)).OfType<ExportableFileViewModel>().ToList();
 
@@ -318,34 +317,36 @@ namespace Bestandenselektie.HKD.ViewModels
         {
             var extension = file.Extension.ToLowerInvariant();
 
+            ExplorerViewModel directory = Directory!.GetDirectoryViewModelFor(file) ?? Directory!;
+
             if (ImageExtensions.Contains(extension))
             {
-                return new ExportableImageViewModel(Directory!, file, Exporter);
+                return new ExportableImageViewModel(directory, file, Exporter);
             }
 
             if (VideoExtensions.Contains(extension))
             {
-                return new ExportableVideoViewModel(Directory!, file, Exporter);
+                return new ExportableVideoViewModel(directory, file, Exporter);
             }
 
             if (PdfExtensions.Contains(extension))
             {
-                return new ExportablePdfViewModel(Directory!, file, Exporter);
+                return new ExportablePdfViewModel(directory, file, Exporter);
             }
 
             if (WordExtensions.Contains(extension))
             {
-                return new ExportableWordViewModel(Directory!, file, Exporter);
+                return new ExportableWordViewModel(directory, file, Exporter);
             }
 
             if (ExcelExtensions.Contains(extension))
             {
-                return new ExportableExcelViewModel(Directory!, file, Exporter);
+                return new ExportableExcelViewModel(directory, file, Exporter);
             }
 
             if (RouteExtensions.Contains(extension))
             {
-                return new ExportableRoutesViewModel(Directory!, file, Exporter);
+                return new ExportableRoutesViewModel(directory, file, Exporter);
             }
 
             return null;
