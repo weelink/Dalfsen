@@ -10,10 +10,16 @@
 		<PublishSingleFile>true</PublishSingleFile>
 		<IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
 		<XamlDebuggingInformation>True</XamlDebuggingInformation>
+		<StartupObject>Bestandenselektie.HKD.App</StartupObject>
+		<ApplicationIcon>Assets\WindowIcon.ico</ApplicationIcon>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<None Remove="Assets\WindowIcon.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Assets\WindowIcon.ico" />
 	</ItemGroup>
 
 	<ItemGroup>
