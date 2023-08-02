@@ -14,14 +14,14 @@
     <framework targetVersion="4.5" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="Application Files\Bestandenselektie.HKD_1_2_0_0\Bestandenselektie.HKD.dll.manifest" size="21313">
+    <dependentAssembly dependencyType="install" codebase="Application Files\Bestandenselektie.HKD_1_2_0_0\Bestandenselektie.HKD.dll.manifest" size="21813">
       <assemblyIdentity name="Bestandenselektie.HKD.exe" version="1.2.0.0" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>iex4IBhQKny8AAsWMyRyOT5sN7zr1eY2mEB68GdKH5g=</dsig:DigestValue>
+        <dsig:DigestValue>/75I5j95ROofd5a1n9Y4oOl9FI2mhOYRgVQZB2kYOpk=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
