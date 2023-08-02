@@ -118,8 +118,6 @@ namespace Bestandenselektie.HKD.ViewModels
             settings.ExcelFilename = ExcelFileLocation;
             settings.MarkDirectoriesAsProcessed = MarkDirectoriesAsProcessed;
 
-            storage.Write(settings);
-
             if (MarkDirectoriesAsProcessed)
             {
                 settings.MarkAsProcessed(directories.Select(directory => directory.Directory));
@@ -132,6 +130,8 @@ namespace Bestandenselektie.HKD.ViewModels
                     }
                 });
             }
+
+            storage.Write(settings);
 
             if (ExportAsExcel && !string.IsNullOrEmpty(ExcelFileLocation))
             {
