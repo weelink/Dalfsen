@@ -18,12 +18,13 @@ using MessageBox = System.Windows.MessageBox;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System.Data;
 using System.Globalization;
-using DocumentFormat.OpenXml.Wordprocessing;
+using Bestandenselektie.HKD.Services;
 
 namespace Bestandenselektie.HKD.ViewModels
 {
     public class ExporterViewModel : ViewModel
     {
+        private readonly Settings settings;
         private readonly ISet<ExportableFileViewModel> files;
         private string? targetDirectory;
         private string? excelFileLocation;
@@ -31,10 +32,14 @@ namespace Bestandenselektie.HKD.ViewModels
         private bool isValid;
         private bool exportAsExcel;
         private readonly ProgressDialog dialog;
+        private readonly Storage storage;
         private MetroWindow? parent;
 
-        public ExporterViewModel()
+        public ExporterViewModel(Storage storage)
         {
+            this.storage = storage;
+            settings = storage.ReadSettings();
+
             files = new HashSet<ExportableFileViewModel>();
             ShowExportCommand = new DelegateCommand(() => IsExportWindowOpen = true);
             ExportCommand = new DelegateCommand<MetroWindow>(parent => ExportImages(parent!), _ => IsValid);
@@ -44,8 +49,10 @@ namespace Bestandenselektie.HKD.ViewModels
 
             Files = new ObservableCollection<ExportableFileViewModel>();
             Files.CollectionChanged += Images_CollectionChanged;
-            ConflictSolutions = new[] { true, false, false };
-            exportAsExcel = true;
+            TargetDirectory = settings.ExportDirectory;
+            ConflictResolutions = settings.ConflictResolutions.ToArray();
+            ExportAsExcel = settings.ExportToExcel;
+            ExcelFileLocation = settings.ExcelFilename;
 
             PropertyChanged += ExporterViewModel_PropertyChanged;
             dialog = new ProgressDialog()
@@ -57,6 +64,8 @@ namespace Bestandenselektie.HKD.ViewModels
 
             dialog.DoWork += Dialog_DoWork;
             dialog.RunWorkerCompleted += Dialog_RunWorkerCompleted;
+
+            Validate();
         }
 
         private void Dialog_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
@@ -98,6 +107,25 @@ namespace Bestandenselektie.HKD.ViewModels
                 }
             }
 
+            List<ExplorerViewModel> directories = Files.Select(x => x.ParentViewModel).Distinct().ToList();
+            var settings = storage.ReadSettings();
+
+            settings.MarkAsProcessed(directories.Select(directory => directory.Directory));
+            settings.ConflictResolutions = ConflictResolutions.ToList();
+            settings.ExportDirectory = TargetDirectory;
+            settings.ExportToExcel = ExportAsExcel;
+            settings.ExcelFilename = ExcelFileLocation;
+
+            storage.Write(settings);
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                foreach (var directory in directories)
+                {
+                    directory.IsProcessed = true;
+                }
+            });
+
             if (ExportAsExcel && !string.IsNullOrEmpty(ExcelFileLocation))
             {
                 dialog.ReportProgress(100, null, "Exporteren naar excel");
@@ -109,6 +137,83 @@ namespace Bestandenselektie.HKD.ViewModels
         {
             var cultureinfo = new CultureInfo("en-US");
 
+            if (!File.Exists(ExcelFileLocation))
+            {
+                CreateEmptyExcel();
+            }
+
+            using (SpreadsheetDocument document = SpreadsheetDocument.Open(ExcelFileLocation!, true))
+            {
+                WorkbookPart workbookPart = document.WorkbookPart!;
+                WorksheetPart worksheetPart = workbookPart.GetPartsOfType<WorksheetPart>().Single();
+                SheetData sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
+
+                foreach (ExportableFileViewModel file in files)
+                {
+                    Row newRow = new Row();
+
+                    newRow.InsertAt<Cell>(new Cell
+                    {
+                        DataType = CellValues.String,
+                        CellValue = new CellValue(file.Directory.FullName)
+                    }, 0);
+
+                    newRow.InsertAt<Cell>(new Cell
+                    {
+                        DataType = CellValues.String,
+                        CellValue = new CellValue(file.Name)
+                    }, 1);
+
+                    newRow.InsertAt<Cell>(new Cell
+                    {
+                        DataType = CellValues.String,
+                        CellValue = new CellValue(file.Extension)
+                    }, 2);
+
+                    newRow.InsertAt<Cell>(new Cell
+                    {
+                        DataType = CellValues.String,
+                        CellValue = new CellValue(file.Dimensions ?? ""),
+                        StyleIndex = 1
+                    }, 3);
+
+                    newRow.InsertAt<Cell>(new Cell
+                    {
+                        DataType = CellValues.Number,
+                        CellValue = new CellValue((int)file.SizeInBytes),
+                        StyleIndex = 1
+                    }, 4);
+
+                    newRow.InsertAt<Cell>(new Cell
+                    {
+                        DataType = new EnumValue<CellValues>(CellValues.Number),
+                        CellValue = new CellValue(file.CreatedAsDate.ToOADate().ToString(cultureinfo)),
+                        StyleIndex = 2
+                    }, 5);
+
+                    newRow.InsertAt<Cell>(new Cell
+                    {
+                        DataType = new EnumValue<CellValues>(CellValues.Number),
+                        CellValue = new CellValue(file.ModifiedAsDate.ToOADate().ToString(cultureinfo)),
+                        StyleIndex = 2
+                    }, 6);
+
+                    newRow.InsertAt<Cell>(new Cell
+                    {
+                        DataType = new EnumValue<CellValues>(CellValues.Number),
+                        CellValue = new CellValue(DateTime.Now.ToOADate().ToString(cultureinfo)),
+                        StyleIndex = 2
+                    }, 7);
+
+                    sheetData.Append(newRow);
+                }
+
+                workbookPart.Workbook.Save();
+            }
+        }
+
+        private void CreateEmptyExcel()
+        {
             using (SpreadsheetDocument document = SpreadsheetDocument.Create(ExcelFileLocation!, SpreadsheetDocumentType.Workbook))
             {
                 WorkbookPart workbookPart = document.AddWorkbookPart();
@@ -134,9 +239,11 @@ namespace Bestandenselektie.HKD.ViewModels
                     "Locatie",
                     "Naam",
                     "Bestandstype",
-                    "Grootte",
+                    "Afmetingen",
+                    "Grootte (in bytes)",
                     "Gewijzigd d.d.",
-                    "Gemaakt d.d."
+                    "Gemaakt d.d.",
+                    "Geexprteerd d.d.",
                 };
 
                 foreach (string column in columns)
@@ -148,53 +255,6 @@ namespace Bestandenselektie.HKD.ViewModels
                 }
 
                 sheetData.AppendChild(headerRow);
-
-                foreach (ExportableFileViewModel file in files)
-                {
-                    Row newRow = new Row();
-
-                    newRow.InsertAt<Cell>(new Cell
-                    {
-                        DataType = CellValues.String,
-                        CellValue = new CellValue(file.Directory)
-                    }, 0);
-
-                    newRow.InsertAt<Cell>(new Cell
-                    {
-                        DataType = CellValues.String,
-                        CellValue = new CellValue(file.Name)
-                    }, 1);
-
-                    newRow.InsertAt<Cell>(new Cell
-                    {
-                        DataType = CellValues.String,
-                        CellValue = new CellValue(file.Extension)
-                    }, 2);
-
-                    newRow.InsertAt<Cell>(new Cell
-                    {
-                        DataType = CellValues.Number,
-                        CellValue = new CellValue((int)file.SizeInBytes),
-                        StyleIndex = 1
-                    }, 3);
-
-                    newRow.InsertAt<Cell>(new Cell
-                    {
-                        DataType = new EnumValue<CellValues>(CellValues.Number),
-                        CellValue = new CellValue(file.CreatedAsDate.ToOADate().ToString(cultureinfo)),
-                        StyleIndex = 2
-                    }, 4);
-
-                    newRow.InsertAt<Cell>(new Cell
-                    {
-                        DataType = new EnumValue<CellValues>(CellValues.Number),
-                        CellValue = new CellValue(file.ModifiedAsDate.ToOADate().ToString(cultureinfo)),
-                        StyleIndex = 2
-                    }, 5);
-
-                    sheetData.AppendChild(newRow);
-                }
-
                 workbookPart.Workbook.Save();
             }
         }
@@ -256,11 +316,16 @@ namespace Bestandenselektie.HKD.ViewModels
         {
             if (e.PropertyName == nameof(TargetDirectory))
             {
-                IsValid = !string.IsNullOrWhiteSpace(TargetDirectory) && Directory.Exists(TargetDirectory);
+                Validate();
             }
         }
 
-        public bool[] ConflictSolutions { get; }
+        private void Validate()
+        {
+            IsValid = !string.IsNullOrWhiteSpace(TargetDirectory) && Directory.Exists(TargetDirectory);
+        }
+
+        public bool[] ConflictResolutions { get; }
 
         public string? ExcelFileLocation
         {

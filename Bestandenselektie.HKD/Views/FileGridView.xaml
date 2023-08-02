@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
              xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-             xmlns:views="clr-namespace:Bestandenselektie.HKD.Views"
              DataContext="{Binding Path=FileGridViewModel, Source={StaticResource ViewModelLocator}}"
              mc:Ignorable="d" 
              IsEnabled="{Binding HasDirectory}"
@@ -140,7 +139,7 @@
                     <DataGridTemplateColumn x:Name="Column2" CellTemplateSelector="{StaticResource ExportableFileTemplateSelector}"/>
                     <DataGridTextColumn x:Name="Column3" Binding="{Binding Name, Mode=OneWay}" Header="Naam" />
                     <DataGridTextColumn x:Name="Column4" Binding="{Binding Extension, Mode=OneWay}" Header="Bestandstype" />
-                    <DataGridTextColumn x:Name="Column5" Binding="{Binding Dimensions, Mode=OneWay}" Header="   " />
+                    <DataGridTextColumn x:Name="Column5" Binding="{Binding Dimensions, Mode=OneWay}" Header="Afmetingen" />
                     <DataGridTextColumn x:Name="Column6" Binding="{Binding Size, Mode=OneWay}" Header="Grootte" />
                     <DataGridTextColumn x:Name="Column7" Binding="{Binding Created, Mode=OneWay}" Header="Gemaakt op" />
                     <DataGridTextColumn x:Name="Column8" Binding="{Binding Modified, Mode=OneWay}" Header="Gewijzigd op" />

@@ -14,14 +14,15 @@ namespace Bestandenselektie.HKD.ViewModels
         private bool isSelected;
         private bool shouldExport;
 
-        protected ExportableFileViewModel(FileInfo file, ExporterViewModel exporter)
+        protected ExportableFileViewModel(ExplorerViewModel parentViewModel, FileInfo file, ExporterViewModel exporter)
         {
             this.file = file;
             this.exporter = exporter;
+            ParentViewModel = parentViewModel;
             Name = file.Name;
             Extension = file.Extension;
             FullPath = file.FullName!;
-            Directory = file.Directory!.FullName!;
+            Directory = file.Directory!;
             isSelected = exporter.IsSelected(this);
             Created = string.Empty;
             Modified = string.Empty;
@@ -69,8 +70,7 @@ namespace Bestandenselektie.HKD.ViewModels
             set { SetProperty(ref shouldExport, value); }
         }
 
-        public string Directory { get; }
-
+        public DirectoryInfo Directory { get; }
         public string FullPath { get; }
         public string Name { get; }
         public string Extension { get; }
@@ -92,6 +92,8 @@ namespace Bestandenselektie.HKD.ViewModels
         {
             get { return file.Length; }
         }
+
+        public ExplorerViewModel ParentViewModel { get; }
 
         public void CopyTo(string targetDirectory)
         {
@@ -116,15 +118,15 @@ namespace Bestandenselektie.HKD.ViewModels
 
             if (File.Exists(target))
             {
-                if (exporter.ConflictSolutions[0])
+                if (exporter.ConflictResolutions[0])
                 {
                     return EnsureUniqueFileName(targetDirectory);
                 }
-                if (exporter.ConflictSolutions[1])
+                if (exporter.ConflictResolutions[1])
                 {
                     return target;
                 }
-                if (exporter.ConflictSolutions[2])
+                if (exporter.ConflictResolutions[2])
                 {
                     return null;
                 }

@@ -320,32 +320,32 @@ namespace Bestandenselektie.HKD.ViewModels
 
             if (ImageExtensions.Contains(extension))
             {
-                return new ExportableImageViewModel(file, Exporter);
+                return new ExportableImageViewModel(Directory!, file, Exporter);
             }
 
             if (VideoExtensions.Contains(extension))
             {
-                return new ExportableVideoViewModel(file, Exporter);
+                return new ExportableVideoViewModel(Directory!, file, Exporter);
             }
 
             if (PdfExtensions.Contains(extension))
             {
-                return new ExportablePdfViewModel(file, Exporter);
+                return new ExportablePdfViewModel(Directory!, file, Exporter);
             }
 
             if (WordExtensions.Contains(extension))
             {
-                return new ExportableWordViewModel(file, Exporter);
+                return new ExportableWordViewModel(Directory!, file, Exporter);
             }
 
             if (ExcelExtensions.Contains(extension))
             {
-                return new ExportableExcelViewModel(file, Exporter);
+                return new ExportableExcelViewModel(Directory!, file, Exporter);
             }
 
             if (RouteExtensions.Contains(extension))
             {
-                return new ExportableRoutesViewModel(file, Exporter);
+                return new ExportableRoutesViewModel(Directory!, file, Exporter);
             }
 
             return null;

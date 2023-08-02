@@ -1,5 +1,6 @@
 ﻿using Bestandenselektie.HKD.Collections;
 using Bestandenselektie.HKD.Commands;
+using Bestandenselektie.HKD.Services;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,12 +10,16 @@ namespace Bestandenselektie.HKD.ViewModels
 {
     public abstract class ExplorerViewModel : ViewModel
     {
+        private readonly Settings settings;
         private bool isExpanded;
+        private bool isProcessed;
 
-        protected ExplorerViewModel(DirectoryInfo directory)
+        protected ExplorerViewModel(DirectoryInfo directory, Settings settings)
         {
             Directory = directory;
+            this.settings = settings;
             Name = directory.Name;
+            IsProcessed = settings.HasBeenProcessed(directory);
             Directories = new SmartCollection<DirectoryViewModel>(new[] { default(DirectoryViewModel)! });
             LoadDirectoriesCommand = new DelegateCommand(() => LoadDirectories());
         }
@@ -25,6 +30,12 @@ namespace Bestandenselektie.HKD.ViewModels
         {
             get { return isExpanded; }
             set { SetProperty(ref isExpanded, value); }
+        }
+
+        public bool IsProcessed
+        {
+            get { return isProcessed; }
+            set { SetProperty(ref isProcessed, value); }
         }
 
         public SmartCollection<DirectoryViewModel> Directories { get; }
@@ -41,7 +52,7 @@ namespace Bestandenselektie.HKD.ViewModels
                 RecurseSubdirectories = false
             });
 
-            IEnumerable<DirectoryViewModel> directoryViewModels = directories.Select(directory => new DirectoryViewModel(directory)).ToList();
+            IEnumerable<DirectoryViewModel> directoryViewModels = directories.Select(directory => new DirectoryViewModel(directory, settings)).ToList();
 
             Directories.AddRange(directoryViewModels);
         }

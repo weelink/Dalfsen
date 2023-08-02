@@ -5,14 +5,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:viewmodels="clr-namespace:Bestandenselektie.HKD.ViewModels"
         xmlns:views="clr-namespace:Bestandenselektie.HKD.Views"
         xmlns:local="clr-namespace:Bestandenselektie.HKD"
         xmlns:behaviors="clr-namespace:Bestandenselektie.HKD.Behaviors"
         xmlns:Behaviors="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-        xmlns:simpleChildWindow="http://metro.mahapps.com/winfx/xaml/simplechildwindow"
-        ShowIconOnTitleBar="True"
+        xmlns:simpleChildWindow="http://metro.mahapps.com/winfx/xaml/simplechildwindow" xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks" xmlns:viewmodels="clr-namespace:Bestandenselektie.HKD.ViewModels"
+    ShowIconOnTitleBar="True"
         ShowTitleBar="True"
         Icon="/Bestandenselektie.HKD;component/Assets/WindowIcon.ico"
         mc:Ignorable="d"
@@ -56,39 +54,20 @@
                     <Style TargetType="TreeViewItem">
                         <Setter Property="behaviors:Behaviors.ExpandingBehavior" Value="{Binding LoadDirectoriesCommand}"/>
                     </Style>
+
                     <HierarchicalDataTemplate DataType="{x:Type viewmodels:DriveViewModel}" ItemsSource="{Binding Directories}">
                         <StackPanel Orientation="Horizontal">
-                            <iconPacks:PackIconFontAwesome>
-                                <iconPacks:PackIconFontAwesome.Style>
-                                    <Style TargetType="iconPacks:PackIconFontAwesome">
-                                        <Setter Property="Kind" Value="HddRegular" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TreeViewItem}, Path=IsExpanded}" Value="True">
-                                                <Setter Property="Kind" Value="HddRegular" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </iconPacks:PackIconFontAwesome.Style>
-                            </iconPacks:PackIconFontAwesome>
+                            <iconPacks:PackIconUnicons Kind="Hdd" Foreground="Black" Background="LightGray" />
 
                             <TextBlock Margin="0,0,10,0"/>
                             <TextBlock Text="{Binding Name}" />
                         </StackPanel>
                     </HierarchicalDataTemplate>
+
                     <HierarchicalDataTemplate DataType="{x:Type viewmodels:DirectoryViewModel}" ItemsSource="{Binding Directories}">
                         <StackPanel Orientation="Horizontal">
-                            <iconPacks:PackIconFontAwesome Foreground="#f8d876">
-                                <iconPacks:PackIconFontAwesome.Style>
-                                    <Style TargetType="iconPacks:PackIconFontAwesome">
-                                        <Setter Property="Kind" Value="FolderSolid" />
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=TreeViewItem}, Path=IsExpanded}" Value="True">
-                                                <Setter Property="Kind" Value="FolderOpenSolid" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </iconPacks:PackIconFontAwesome.Style>
-                            </iconPacks:PackIconFontAwesome>
+                            <iconPacks:PackIconUnicons Visibility="{Binding IsProcessed, Converter={StaticResource InvertedBooleanToVisibilityConverter}}" Kind="Folder" Foreground="Black" Background="#f8d876" />
+                            <iconPacks:PackIconUnicons Visibility="{Binding IsProcessed, Converter={StaticResource BooleanToVisibilityConverter}}" Kind="FolderCheck" Foreground="Black" Background="#76f890" />
 
                             <TextBlock Margin="0,0,10,0"/>
                             <TextBlock Text="{Binding Name}" />
@@ -108,7 +87,6 @@
 
             <views:StatusBarView Grid.Row="1" Grid.ColumnSpan="3" />
         </Grid>
-
 
         <simpleChildWindow:ChildWindow
             DataContext="{Binding Path=ExporterViewModel, Source={StaticResource ViewModelLocator}}"
@@ -141,7 +119,7 @@
                                 <GridViewColumn Width="128" CellTemplateSelector="{StaticResource ExportableFileTemplateSelector}" />
                                 <GridViewColumn DisplayMemberBinding="{Binding Name, Mode=OneWay}" Header="Naam" />
                                 <GridViewColumn DisplayMemberBinding="{Binding Extension, Mode=OneWay}" Header="Bestandstype" />
-                                <GridViewColumn DisplayMemberBinding="{Binding Dimensions, Mode=OneWay}" Header="   " />
+                                <GridViewColumn DisplayMemberBinding="{Binding Dimensions, Mode=OneWay}" Header="Afmetingen" />
                                 <GridViewColumn DisplayMemberBinding="{Binding Size, Mode=OneWay}" Header="Grootte" />
                                 <GridViewColumn DisplayMemberBinding="{Binding Created, Mode=OneWay}" Header="Gemaakt op" />
                                 <GridViewColumn DisplayMemberBinding="{Binding Modified, Mode=OneWay}" Header="Gewijzigd op" />
@@ -177,17 +155,18 @@
                         <Label Grid.Row="2" Grid.Column="0">Conflictoplossing:</Label>
 
                         <StackPanel Grid.Row="2" Grid.Column="1" Margin="0,10">
-                            <RadioButton GroupName="conflict" IsChecked="{Binding ConflictSolutions[0], Mode=TwoWay}">Automatisch hernoemen</RadioButton>
-                            <RadioButton GroupName="conflict" IsChecked="{Binding ConflictSolutions[1], Mode=TwoWay}">Doelbestand overschrijven</RadioButton>
-                            <RadioButton GroupName="conflict" IsChecked="{Binding ConflictSolutions[2], Mode=TwoWay}">Bronbestand overslaan</RadioButton>
+                            <RadioButton GroupName="conflict" IsChecked="{Binding ConflictResolutions[0], Mode=TwoWay}">Automatisch hernoemen</RadioButton>
+                            <RadioButton GroupName="conflict" IsChecked="{Binding ConflictResolutions[1], Mode=TwoWay}">Doelbestand overschrijven</RadioButton>
+                            <RadioButton GroupName="conflict" IsChecked="{Binding ConflictResolutions[2], Mode=TwoWay}">Bronbestand overslaan</RadioButton>
                         </StackPanel>
 
-                        <CheckBox Grid.Row="3" Grid.Column="0" Content="Opslaan als Excel?" x:Name="ExportAsExcel" IsChecked="{Binding ExportAsExcel}" />
-                        <TextBox Text="{Binding ExcelFileLocation,Mode=TwoWay}" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" />
+                        <mah:ToggleSwitch x:Name="ExportAsExcel" Grid.Row="3" Grid.Column="0" IsOn="{Binding ExportAsExcel}" Focusable="False" Content="Opslaan als Excel" />
+
+                        <TextBox Text="{Binding ExcelFileLocation,Mode=TwoWay}" IsEnabled="{Binding ElementName=ExportAsExcel, Path=IsOn}" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" />
                         <Button Content="Bladeren..."
                             Command="{Binding BrowseForExcelFileCommand}"
                             CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=local:MainWindow}}"
-                            Grid.Row="4" Grid.Column="1" IsEnabled="{Binding ElementName=ExportAsExcel, Path=IsChecked}" />
+                            Grid.Row="4" Grid.Column="1" IsEnabled="{Binding ElementName=ExportAsExcel, Path=IsOn}" />
 
                         <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Margin="0,10">
                             <Button Style="{StaticResource MahApps.Styles.Button.Square.Accent}"

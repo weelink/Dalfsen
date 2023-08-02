@@ -1,12 +1,16 @@
-﻿namespace Bestandenselektie.HKD.ViewModels
+﻿using Bestandenselektie.HKD.Services;
+
+namespace Bestandenselektie.HKD.ViewModels
 {
     public class ViewModelLocator
     {
         public ViewModelLocator()
         {
-            ExporterViewModel = new ExporterViewModel();
+            var storage = new Storage();
+
+            ExporterViewModel = new ExporterViewModel(storage);
             StatusBarViewModel = new StatusBarViewModel();
-            MainWindowViewModel = new MainWindowViewModel();
+            MainWindowViewModel = new MainWindowViewModel(storage);
             FileGridViewModel = new FileGridViewModel(StatusBarViewModel, ExporterViewModel);
         }
 

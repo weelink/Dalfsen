@@ -4,8 +4,8 @@ namespace Bestandenselektie.HKD.ViewModels
 {
     public class ExportableVideoViewModel : ExportableFileViewModel
     {
-        public ExportableVideoViewModel(FileInfo file, ExporterViewModel exporter)
-            : base(file, exporter)
+        public ExportableVideoViewModel(ExplorerViewModel parentViewModel, FileInfo file, ExporterViewModel exporter)
+            : base(parentViewModel, file, exporter)
         {
         }
     }
