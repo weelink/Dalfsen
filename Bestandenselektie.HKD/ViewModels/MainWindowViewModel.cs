@@ -26,7 +26,7 @@ namespace Bestandenselektie.HKD.ViewModels
         {
             Settings settings = storage.ReadSettings();
             IEnumerable<DriveInfo> drives = DriveInfo.GetDrives().Where(drive => drive.IsReady);
-
+            
             foreach (DriveInfo drive in drives)
             {
                 Drives.Add(new DriveViewModel(drive, settings));
