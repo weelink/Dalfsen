@@ -75,13 +75,22 @@ namespace Bestandenselektie.HKD.ViewModels
                 return Directories;
             }
 
-            IEnumerable<DirectoryInfo> directories = Directory.EnumerateDirectories("*", new EnumerationOptions
-            {
-                IgnoreInaccessible = true,
-                RecurseSubdirectories = false
-            });
+            IEnumerable<DirectoryViewModel> directoryViewModels;
 
-            IEnumerable<DirectoryViewModel> directoryViewModels = directories.Select(directory => DirectoryViewModel.Get(directory, settings)).ToList();
+            try
+            {
+                IEnumerable<DirectoryInfo> directories = Directory.EnumerateDirectories("*", new EnumerationOptions
+                {
+                    IgnoreInaccessible = true,
+                    RecurseSubdirectories = false
+                });
+
+                directoryViewModels = directories.Select(directory => DirectoryViewModel.Get(directory, settings)).ToList();
+            }
+            catch (Exception)
+            {
+                directoryViewModels = Enumerable.Empty<DirectoryViewModel>();
+            }
 
             Application.Current.Dispatcher.Invoke(() =>
             {

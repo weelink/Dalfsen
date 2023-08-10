@@ -1,9 +1,11 @@
 ﻿using Bestandenselektie.HKD.Commands;
 using Bestandenselektie.HKD.Services;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Bestandenselektie.HKD.ViewModels
@@ -25,8 +27,8 @@ namespace Bestandenselektie.HKD.ViewModels
         private void Load()
         {
             Settings settings = storage.ReadSettings();
+
             IEnumerable<DriveInfo> drives = DriveInfo.GetDrives().Where(drive => drive.IsReady);
-            
             foreach (DriveInfo drive in drives)
             {
                 Drives.Add(new DriveViewModel(drive, settings));

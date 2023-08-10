@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 using System.Windows;
 using System.Windows.Threading;
 
@@ -22,6 +21,8 @@ namespace Bestandenselektie.HKD
             var file = Path.Join(path, "fout.txt");
             var log = e.Exception.ToString();
             File.WriteAllText(file, log);
+
+            MessageBox.Show("Er is een onverwachte fout opgetreden. Op het bureaublad staat het bestand 'fout.txt' met de details.", "Er is een fout opgetreden", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 }

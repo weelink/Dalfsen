@@ -292,7 +292,7 @@ namespace Bestandenselektie.HKD.ViewModels
 
                     Application.Current.Dispatcher.Invoke(() => Files.AddRange(viewModels), DispatcherPriority.Normal, cancellationToken);
                 }
-                catch (OperationCanceledException)
+                catch (Exception)
                 {
                 }
                 finally
