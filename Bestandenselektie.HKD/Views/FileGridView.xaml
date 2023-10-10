@@ -58,7 +58,7 @@
                                   CommandParameter="{Binding IsChecked,RelativeSource={RelativeSource Self}}"
                                   IsChecked="{Binding AllSelected, Mode=TwoWay}"
                                   ToolTip="Selecteer alles">
-                        <iconPacks:PackIconBoxIcons Kind="RegularCheckDouble" />
+                        <iconPacks:PackIconBoxIcons Kind="RegularCheckDouble" Width="32" Height="32" Foreground="Black" />
                     </ToggleButton>
 
                     <RibbonSeparator />
@@ -67,7 +67,7 @@
                                   CommandParameter="{Binding IsChecked,RelativeSource={RelativeSource Self}}"
                                   IsChecked="{Binding AllImagesSelected, Mode=TwoWay}"
                                   ToolTip="Selecteer alle afbeeldingen">
-                        <iconPacks:PackIconFontAwesome Kind="FileImageRegular" />
+                        <iconPacks:PackIconFontAwesome Kind="FileImageRegular" Width="32" Height="32" Foreground="Black" />
                     </ToggleButton>
 
                     <RibbonSeparator />
@@ -76,7 +76,7 @@
                                   CommandParameter="{Binding IsChecked,RelativeSource={RelativeSource Self}}"
                                   IsChecked="{Binding AllVideosSelected, Mode=TwoWay}"
                                   ToolTip="Selecteer alle video's">
-                        <iconPacks:PackIconFontAwesome Kind="FileVideoRegular" />
+                        <iconPacks:PackIconFontAwesome Kind="FileVideoRegular" Width="32" Height="32" Foreground="Black" />
                     </ToggleButton>
 
                     <RibbonSeparator />
@@ -85,7 +85,7 @@
                                   CommandParameter="{Binding IsChecked,RelativeSource={RelativeSource Self}}"
                                   IsChecked="{Binding AllPdfsSelected, Mode=TwoWay}"
                                   ToolTip="Selecteer alle PDF-documenten">
-                        <iconPacks:PackIconFontAwesome Kind="FilePdfRegular" />
+                        <iconPacks:PackIconFontAwesome Kind="FilePdfRegular" Width="32" Height="32" Foreground="Crimson" />
                     </ToggleButton>
 
                     <RibbonSeparator />
@@ -94,7 +94,7 @@
                                   CommandParameter="{Binding IsChecked,RelativeSource={RelativeSource Self}}"
                                   IsChecked="{Binding AllExcelsSelected, Mode=TwoWay}"
                                   ToolTip="Selecteer alle Excel-documenten">
-                        <iconPacks:PackIconFontAwesome Kind="FileExcelRegular" />
+                        <iconPacks:PackIconFontAwesome Kind="FileExcelRegular" Width="32" Height="32" Foreground="DarkGreen" />
                     </ToggleButton>
 
                     <RibbonSeparator />
@@ -103,7 +103,7 @@
                                   CommandParameter="{Binding IsChecked,RelativeSource={RelativeSource Self}}"
                                   IsChecked="{Binding AllWordsSelected, Mode=TwoWay}"
                                   ToolTip="Selecteer alle Word-documenten">
-                        <iconPacks:PackIconFontAwesome Kind="FileWordRegular" />
+                        <iconPacks:PackIconFontAwesome Kind="FileWordRegular" Width="32" Height="32" Foreground="DarkBlue" />
                     </ToggleButton>
 
                     <RibbonSeparator />
@@ -112,7 +112,7 @@
                                   CommandParameter="{Binding IsChecked,RelativeSource={RelativeSource Self}}"
                                   IsChecked="{Binding AllRoutesSelected, Mode=TwoWay}"
                                   ToolTip="Selecteer alle route-documenten">
-                        <iconPacks:PackIconFontAwesome Kind="MapMarkerAltSolid" />
+                        <iconPacks:PackIconFontAwesome Kind="MapMarkerAltSolid" Width="32" Height="32" Foreground="Red" />
                     </ToggleButton>
                 </StackPanel>
             </Grid>
@@ -136,7 +136,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn x:Name="Column2" CellTemplateSelector="{StaticResource ExportableFileTemplateSelector}"/>
+                    <DataGridTemplateColumn x:Name="Column2" CellTemplateSelector="{StaticResource ExportableFileTemplateSelector}" />
                     <DataGridTextColumn x:Name="Column3" Binding="{Binding Name, Mode=OneWay}" Header="Naam" />
                     <DataGridTextColumn x:Name="Column4" Binding="{Binding Extension, Mode=OneWay}" Header="Bestandstype" />
                     <DataGridTextColumn x:Name="Column5" Binding="{Binding Dimensions, Mode=OneWay}" Header="Afmetingen" />

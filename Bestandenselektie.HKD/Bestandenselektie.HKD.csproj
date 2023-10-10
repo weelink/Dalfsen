@@ -15,10 +15,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Remove="Assets\Excel-invulformulier ZCBS.xlsx" />
 		<None Remove="Assets\WindowIcon.ico" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <EmbeddedResource Include="Assets\Excel-invulformulier ZCBS.xlsx" />
 	  <EmbeddedResource Include="Assets\WindowIcon.ico" />
 	</ItemGroup>
 

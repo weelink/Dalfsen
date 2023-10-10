@@ -19,6 +19,7 @@ using DocumentFormat.OpenXml.Spreadsheet;
 using System.Data;
 using System.Globalization;
 using Bestandenselektie.HKD.Services;
+using System.Threading;
 
 namespace Bestandenselektie.HKD.ViewModels
 {
@@ -31,16 +32,18 @@ namespace Bestandenselektie.HKD.ViewModels
         private bool isExportWindowOpen;
         private bool isValid;
         private bool exportAsExcel;
+        private bool fileExists;
         private bool markDirectoriesAsProcessed;
         private readonly ProgressDialog dialog;
         private readonly Storage storage;
         private MetroWindow? parent;
+        private CancellationTokenSource? exportcancelled;
 
         public ExporterViewModel(Storage storage)
         {
             this.storage = storage;
             settings = storage.ReadSettings();
-
+            
             files = new HashSet<ExportableFileViewModel>();
             ShowExportCommand = new DelegateCommand(() => IsExportWindowOpen = true);
             ExportCommand = new DelegateCommand<MetroWindow>(parent => ExportImages(parent!), _ => IsValid);
@@ -62,6 +65,7 @@ namespace Bestandenselektie.HKD.ViewModels
                 WindowTitle = "Exporteren",
                 Text = "Bezig met exporteren...",
                 ShowTimeRemaining = true,
+                ShowCancelButton = false
             };
 
             dialog.DoWork += Dialog_DoWork;
@@ -72,29 +76,39 @@ namespace Bestandenselektie.HKD.ViewModels
 
         private void Dialog_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
         {
-            MessageBox.Show(parent, "Exporteren voltooid", "Expoteren", MessageBoxButton.OK, MessageBoxImage.Information);
-
-            Application.Current.Dispatcher.Invoke(() =>
+            if (e.Result != null)
             {
-                foreach (var image in Files.ToList())
+                MessageBox.Show(parent, ((Exception)e.Result).Message, "Expoteren", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else
+            {
+                MessageBox.Show(parent, "Exporteren voltooid", "Expoteren", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                Application.Current.Dispatcher.Invoke(() =>
                 {
-                    image.IsSelected = false;
-                    image.ShouldExport = false;
-                }
-                IsExportWindowOpen = false;
-                Files.Clear();
-            });
+                    foreach (var image in Files.ToList())
+                    {
+                        image.IsSelected = false;
+                        image.ShouldExport = false;
+                    }
+                    IsExportWindowOpen = false;
+                    Files.Clear();
+                });
+            }
         }
 
         private void ExportImages(MetroWindow parent)
         {
+            exportcancelled = new CancellationTokenSource();
             this.parent = parent;
-            dialog.ShowDialog(parent);
+            dialog.ShowDialog(parent, exportcancelled.Token);
         }
 
         private void Dialog_DoWork(object? sender, DoWorkEventArgs e)
         {
             var files = Files.Where(file => file.ShouldExport).ToList();
+
+            CreateDirectory(TargetDirectory!);
 
             for (int x = 0; x < files.Count; x++)
             {
@@ -118,6 +132,18 @@ namespace Bestandenselektie.HKD.ViewModels
             settings.ExcelFilename = ExcelFileLocation;
             settings.MarkDirectoriesAsProcessed = MarkDirectoriesAsProcessed;
 
+            storage.Write(settings);
+
+            if (ExportAsExcel && !string.IsNullOrEmpty(ExcelFileLocation))
+            {
+                dialog.ReportProgress(100, null, "Exporteren naar excel");
+                e.Result = ExportToExcel(files);
+            }
+            else
+            {
+                e.Result = true;
+            }
+
             if (MarkDirectoriesAsProcessed)
             {
                 settings.MarkAsProcessed(directories.Select(directory => directory.Directory));
@@ -132,166 +158,121 @@ namespace Bestandenselektie.HKD.ViewModels
             }
 
             storage.Write(settings);
+        }
 
-            if (ExportAsExcel && !string.IsNullOrEmpty(ExcelFileLocation))
+        private void CreateDirectory(string path)
+        {
+            try
             {
-                dialog.ReportProgress(100, null, "Exporteren naar excel");
-                ExportToExcel(files);
+                Directory.CreateDirectory(path);
+            } catch (Exception e)
+            {
+                MessageBox.Show(parent, $"Er is een fout opgetreden bij het aanmaken van de map {path}:{Environment.NewLine}{Environment.NewLine}{e.Message}", "Fout", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void ExportToExcel(List<ExportableFileViewModel> files)
+        private Exception? ExportToExcel(List<ExportableFileViewModel> files)
         {
             var cultureinfo = new CultureInfo("en-US");
 
+            CreateDirectory(Path.GetDirectoryName(ExcelFileLocation)!);
             if (!File.Exists(ExcelFileLocation))
             {
                 CreateEmptyExcel();
             }
 
-            using (SpreadsheetDocument document = SpreadsheetDocument.Open(ExcelFileLocation!, true))
+            string filename = Path.GetFileName(TargetDirectory!)!;
+
+            try
             {
-                WorkbookPart workbookPart = document.WorkbookPart!;
-                WorksheetPart worksheetPart = workbookPart.GetPartsOfType<WorksheetPart>().Single();
-                SheetData sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
-
-                foreach (ExportableFileViewModel file in files)
+                using (SpreadsheetDocument document = SpreadsheetDocument.Open(ExcelFileLocation!, true))
                 {
-                    Row newRow = new Row();
+                    WorkbookPart workbookPart = document.WorkbookPart!;
+                    IEnumerable<Sheet> sheets = workbookPart.Workbook.Descendants<Sheet>();
+                    Sheet sheet = sheets.First(s => s.Name!.Equals("Invulvelden"));
 
-                    newRow.InsertAt<Cell>(new Cell
+                    string? relationshipId = sheet.Id!;
+
+                    Worksheet worksheet = ((WorksheetPart)workbookPart.GetPartById(relationshipId)).Worksheet;
+
+                    WorksheetPart worksheetPart = worksheet.WorksheetPart!;
+                    SheetData sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
+
+                    var lastRowIndex = sheetData.Elements<Row>().Select((row, index) => new
                     {
-                        DataType = CellValues.String,
-                        CellValue = new CellValue(file.Directory.FullName)
-                    }, 0);
-
-                    newRow.InsertAt<Cell>(new Cell
+                        Row = row,
+                        RowIndex = (uint)index
+                    }).First(row =>
                     {
-                        DataType = CellValues.String,
-                        CellValue = new CellValue(file.Name)
-                    }, 1);
+                        return row.RowIndex > 4 && (!row.Row.HasChildren ||
+                            (row.Row.Descendants<Cell>().Count() > 2 && row.Row.Descendants<Cell>().Skip(2).First().CellValue == null));
+                    }).RowIndex;
 
-                    newRow.InsertAt<Cell>(new Cell
+                    for (int i = 0; i < files.Count; i++)
                     {
-                        DataType = CellValues.String,
-                        CellValue = new CellValue(file.Extension)
-                    }, 2);
+                        ExportableFileViewModel file = files[i];
 
-                    newRow.InsertAt<Cell>(new Cell
-                    {
-                        DataType = CellValues.String,
-                        CellValue = new CellValue(file.Dimensions ?? ""),
-                        StyleIndex = 1
-                    }, 3);
+                        Row newRow = new Row { RowIndex = (uint)(lastRowIndex + i) };
 
-                    newRow.InsertAt<Cell>(new Cell
-                    {
-                        DataType = CellValues.Number,
-                        CellValue = new CellValue((int)file.SizeInBytes),
-                        StyleIndex = 1
-                    }, 4);
+                        newRow.Append(GenerateEmpty(2));
 
-                    newRow.InsertAt<Cell>(new Cell
-                    {
-                        DataType = new EnumValue<CellValues>(CellValues.Number),
-                        CellValue = new CellValue(file.CreatedAsDate.ToOADate().ToString(cultureinfo)),
-                        StyleIndex = 2
-                    }, 5);
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.Number,
+                            CellValue = new CellValue("" + (lastRowIndex - 5 + i + 1))
+                        });
 
-                    newRow.InsertAt<Cell>(new Cell
-                    {
-                        DataType = new EnumValue<CellValues>(CellValues.Number),
-                        CellValue = new CellValue(file.ModifiedAsDate.ToOADate().ToString(cultureinfo)),
-                        StyleIndex = 2
-                    }, 6);
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue(filename + (lastRowIndex - 5 + i + 1))
+                        });
 
-                    newRow.InsertAt<Cell>(new Cell
-                    {
-                        DataType = new EnumValue<CellValues>(CellValues.Number),
-                        CellValue = new CellValue(DateTime.Now.ToOADate().ToString(cultureinfo)),
-                        StyleIndex = 2
-                    }, 7);
+                        newRow.Append(GenerateEmpty(18));
 
-                    sheetData.Append(newRow);
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.Number,
+                            CellValue = new CellValue(0)
+                        });
+
+                        newRow.Append(GenerateEmpty(5));
+
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue(file.FullPath)
+                        });
+
+                        sheetData.InsertAt(newRow, (int) (newRow.RowIndex.Value));
+                    }
+
+                    workbookPart.Workbook.Save();
                 }
 
-                workbookPart.Workbook.Save();
+                return null;
             }
+            catch (IOException e)
+            {
+                return e;
+            }
+        }
+
+        private IEnumerable<Cell> GenerateEmpty(int count)
+        {
+            return Enumerable.Range(0, count).Select(_ => new Cell());
         }
 
         private void CreateEmptyExcel()
         {
-            using (SpreadsheetDocument document = SpreadsheetDocument.Create(ExcelFileLocation!, SpreadsheetDocumentType.Workbook))
+            using (Stream excel = GetType().Assembly.GetManifestResourceStream("Bestandenselektie.HKD.Assets.Excel-invulformulier ZCBS.xlsx")!)
             {
-                WorkbookPart workbookPart = document.AddWorkbookPart();
-                workbookPart.Workbook = new Workbook();
-
-                WorksheetPart worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
-                var sheetData = new SheetData();
-                worksheetPart.Worksheet = new Worksheet(sheetData);
-
-                WorkbookStylesPart stylePart = workbookPart.AddNewPart<WorkbookStylesPart>();
-                NumberingFormats nfs = new NumberingFormats();
-
-                NumberingFormat nf;
-                nf = new NumberingFormat();
-                nf.NumberFormatId = 165;
-                nf.FormatCode = "dddd\\ d\\ mmmm\\ yyyy";
-                nfs.Append(nf);
-
-                Stylesheet styleSheet = new Stylesheet(GenerateCellFormats())
+                using (var fileStream = File.Create(ExcelFileLocation!))
                 {
-                    NumberingFormats = nfs
-                };
-                stylePart.Stylesheet = styleSheet;
-                stylePart.Stylesheet.Save();
-
-                Sheets sheets = workbookPart.Workbook.AppendChild(new Sheets());
-                Sheet sheet = new Sheet() { Id = workbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = "Sheet1" };
-
-                sheets.Append(sheet);
-
-                Row headerRow = new Row();
-
-                var columns = new List<string> {
-                    "Locatie",
-                    "Naam",
-                    "Bestandstype",
-                    "Afmetingen",
-                    "Grootte (in bytes)",
-                    "Gewijzigd d.d.",
-                    "Gemaakt d.d.",
-                    "Geëxporteerd d.d.",
-                };
-
-                foreach (string column in columns)
-                {
-                    Cell cell = new Cell();
-                    cell.DataType = CellValues.String;
-                    cell.CellValue = new CellValue(column);
-                    headerRow.AppendChild(cell);
+                    excel.Seek(0, SeekOrigin.Begin);
+                    excel.CopyTo(fileStream);
                 }
-
-                sheetData.AppendChild(headerRow);
-                workbookPart.Workbook.Save();
             }
-        }
-
-        private static CellFormats GenerateCellFormats()
-        {
-            CellFormats cellFormats = new CellFormats(
-                new CellFormat(new Alignment()),
-                // int
-                new CellFormat(new Alignment()) { NumberFormatId = 1 },
-                // Date
-                new CellFormat(new Alignment())
-                {
-                    NumberFormatId = 165,
-                    ApplyNumberFormat = true
-                }
-            );
-
-            return cellFormats;
         }
 
         private void BrowseForExcel(MetroWindow parent)
@@ -310,7 +291,7 @@ namespace Bestandenselektie.HKD.ViewModels
                 initial = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             }
 
-            SaveFileDialog saveFileDialog = new SaveFileDialog
+            var saveFileDialog = new SaveFileDialog()
             {
                 Filter = "Excel bestand|*.xlsx",
                 InitialDirectory = initial
@@ -327,6 +308,7 @@ namespace Bestandenselektie.HKD.ViewModels
             var dialog = new VistaFolderBrowserDialog();
             dialog.Description = "Selecteer de doelmap";
             dialog.UseDescriptionForTitle = true;
+            dialog.ShowNewFolderButton = true;
 
             if (dialog.ShowDialog(parent) == true)
             {
@@ -336,15 +318,50 @@ namespace Bestandenselektie.HKD.ViewModels
 
         private void ExporterViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
+            if (e.PropertyName == nameof(ExcelFileLocation))
+            {
+                FileExists = File.Exists(ExcelFileLocation);
+            }
+
             if (e.PropertyName == nameof(TargetDirectory))
             {
                 Validate();
             }
         }
 
+        private bool ShouldAutoGenerateExcelFileName
+        {
+            get
+            {
+                try
+                {
+                    return string.IsNullOrEmpty(TargetDirectory) ||
+                    string.IsNullOrEmpty(ExcelFileLocation) ||
+                    Path.GetFullPath(TargetDirectory!).Equals(Path.GetFullPath(Path.GetDirectoryName(ExcelFileLocation)!), StringComparison.CurrentCultureIgnoreCase);
+                } catch (Exception)
+                {
+                    return false;
+                }
+            }
+        }
+
+        private bool IsValidPath(string path)
+        {
+            try
+            {
+                new FileInfo(path);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
         private void Validate()
         {
-            IsValid = !string.IsNullOrWhiteSpace(TargetDirectory) && Directory.Exists(TargetDirectory);
+            IsValid = !string.IsNullOrWhiteSpace(TargetDirectory) && IsValidPath(TargetDirectory);
         }
 
         public bool[] ConflictResolutions { get; }
@@ -358,13 +375,28 @@ namespace Bestandenselektie.HKD.ViewModels
         public string? TargetDirectory
         {
             get { return targetDirectory; }
-            set { SetProperty(ref targetDirectory, value); }
+            set
+            {
+                var shouldUpdateExcelFilename = ShouldAutoGenerateExcelFileName;
+
+                SetProperty(ref targetDirectory, value);
+                if (shouldUpdateExcelFilename)
+                {
+                    ExcelFileLocation = Path.Combine(TargetDirectory!, Path.GetFileNameWithoutExtension(TargetDirectory) + ".xlsx");
+                }
+            }
         }
 
         public bool ExportAsExcel
         {
             get { return exportAsExcel; }
             set { SetProperty(ref exportAsExcel, value); }
+        }
+
+        public bool FileExists
+        {
+            get { return fileExists; }
+            set { SetProperty(ref fileExists, value); }
         }
 
         public bool MarkDirectoriesAsProcessed

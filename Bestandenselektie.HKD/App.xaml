@@ -19,19 +19,19 @@
                         <Image Source="{Binding FullPath, Mode=OneWay}" Stretch="Uniform" Width="128" Height="128" />
                     </DataTemplate>
                     <DataTemplate x:Key="VideoTemplate">
-                        <iconPacks:PackIconFontAwesome Kind="FileVideoRegular" Width="128" Height="128" />
+                        <iconPacks:PackIconFontAwesome Kind="FileVideoRegular" Width="64" Height="64" Foreground="Black" HorizontalAlignment="Center" />
                     </DataTemplate>
                     <DataTemplate x:Key="PdfTemplate">
-                        <iconPacks:PackIconFontAwesome Kind="FilePdfRegular" Width="128" Height="128" />
+                        <iconPacks:PackIconFontAwesome Kind="FilePdfRegular" Width="64" Height="64" Foreground="Crimson" HorizontalAlignment="Center" />
                     </DataTemplate>
                     <DataTemplate x:Key="ExcelTemplate">
-                        <iconPacks:PackIconFontAwesome Kind="FileExcelRegular" Width="128" Height="128" />
+                        <iconPacks:PackIconFontAwesome Kind="FileExcelRegular" Width="64" Height="64" Foreground="DarkGreen" HorizontalAlignment="Center" />
                     </DataTemplate>
                     <DataTemplate x:Key="WordTemplate">
-                        <iconPacks:PackIconFontAwesome Kind="FileWordRegular" Width="128" Height="128" />
+                        <iconPacks:PackIconFontAwesome Kind="FileWordRegular" Width="64" Height="64" Foreground="DarkBlue" HorizontalAlignment="Center"/>
                     </DataTemplate>
                     <DataTemplate x:Key="RoutesTemplate">
-                        <iconPacks:PackIconFontAwesome Kind="MapMarkerAltSolid" Width="128" Height="128" />
+                        <iconPacks:PackIconFontAwesome Kind="MapMarkerAltSolid" Width="64" Height="64" Foreground="Red" HorizontalAlignment="Center"/>
                     </DataTemplate>
 
                     <views:ExportableFileTemplateSelector x:Key="ExportableFileTemplateSelector"
