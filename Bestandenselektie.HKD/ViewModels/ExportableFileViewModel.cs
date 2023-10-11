@@ -79,6 +79,7 @@ namespace Bestandenselektie.HKD.ViewModels
         public DateTime ModifiedAsDate { get; }
         public DateTime CreatedAsDate { get; }
         public virtual string? Dimensions { get; }
+        public string? Target { get; private set; }
 
         public string Size
         {
@@ -97,15 +98,15 @@ namespace Bestandenselektie.HKD.ViewModels
 
         public void CopyTo(string targetDirectory)
         {
-            var target = DetermineTarget(targetDirectory);
-            if (target == null)
+            Target = DetermineTarget(targetDirectory);
+            if (Target == null)
             {
                 return;
             }
 
             try
             {
-                File.Copy(FullPath, target, true);
+                File.Copy(FullPath, Target, true);
             }
             catch (Exception)
             {

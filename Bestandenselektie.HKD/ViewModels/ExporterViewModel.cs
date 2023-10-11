@@ -1,6 +1,5 @@
 ﻿using Bestandenselektie.HKD.Commands;
 using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml;
 using MahApps.Metro.Controls;
 using Ookii.Dialogs.Wpf;
 using System;
@@ -20,6 +19,7 @@ using System.Data;
 using System.Globalization;
 using Bestandenselektie.HKD.Services;
 using System.Threading;
+using Bestandenselektie.HKD.Exceptions;
 
 namespace Bestandenselektie.HKD.ViewModels
 {
@@ -57,6 +57,7 @@ namespace Bestandenselektie.HKD.ViewModels
             ConflictResolutions = settings.ConflictResolutions.ToArray();
             ExportAsExcel = settings.ExportToExcel;
             ExcelFileLocation = settings.ExcelFilename;
+            FileExists = File.Exists(ExcelFileLocation);
             MarkDirectoriesAsProcessed = settings.MarkDirectoriesAsProcessed;
 
             PropertyChanged += ExporterViewModel_PropertyChanged;
@@ -76,11 +77,7 @@ namespace Bestandenselektie.HKD.ViewModels
 
         private void Dialog_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
         {
-            if (e.Result != null)
-            {
-                MessageBox.Show(parent, ((Exception)e.Result).Message, "Expoteren", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            else
+            if (e.Result == null)
             {
                 MessageBox.Show(parent, "Exporteren voltooid", "Expoteren", MessageBoxButton.OK, MessageBoxImage.Information);
 
@@ -94,6 +91,22 @@ namespace Bestandenselektie.HKD.ViewModels
                     IsExportWindowOpen = false;
                     Files.Clear();
                 });
+            }
+            else if (e.Result is InvalidExcelFileFoundException exception)
+            {
+                var message = $"Er is iets niet goed met het Excel-bestand {exception.Filename}" +
+                      $"{Environment.NewLine}" +
+                      $"{Environment.NewLine}" +
+                      $"Kies een niet bestaand bestand en probeer het opnieuw." +
+                      $"{Environment.NewLine}" +
+                      $"{Environment.NewLine}" +
+                      $"Technische foutcode: {exception.TechnicalReason}";
+
+                MessageBox.Show(parent, message, "Expoteren", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else
+            {
+                MessageBox.Show(parent, ((Exception)e.Result).Message, "Expoteren", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -175,7 +188,9 @@ namespace Bestandenselektie.HKD.ViewModels
         {
             var cultureinfo = new CultureInfo("en-US");
 
-            CreateDirectory(Path.GetDirectoryName(ExcelFileLocation)!);
+            string excelFileLocation = ExcelFileLocation!;
+
+            CreateDirectory(Path.GetDirectoryName(excelFileLocation)!);
             if (!File.Exists(ExcelFileLocation))
             {
                 CreateEmptyExcel();
@@ -185,28 +200,61 @@ namespace Bestandenselektie.HKD.ViewModels
 
             try
             {
-                using (SpreadsheetDocument document = SpreadsheetDocument.Open(ExcelFileLocation!, true))
+                using (SpreadsheetDocument document = SpreadsheetDocument.Open(excelFileLocation, true))
                 {
-                    WorkbookPart workbookPart = document.WorkbookPart!;
-                    IEnumerable<Sheet> sheets = workbookPart.Workbook.Descendants<Sheet>();
-                    Sheet sheet = sheets.First(s => s.Name!.Equals("Invulvelden"));
+                    WorkbookPart? workbookPart = document.WorkbookPart;
 
-                    string? relationshipId = sheet.Id!;
+                    if (workbookPart == null)
+                    {
+                        throw new InvalidExcelFileFoundException(excelFileLocation, "Geen workbook part gevonden");
+                    }
+
+                    IEnumerable<Sheet> sheets = workbookPart.Workbook.Descendants<Sheet>();
+
+                    if (!sheets.Any())
+                    {
+                        throw new InvalidExcelFileFoundException(excelFileLocation, "Geen werkbladen gevonden");
+                    }
+
+                    Sheet? sheet = sheets.FirstOrDefault(s => string.Equals(s.Name, "Invulvelden", StringComparison.OrdinalIgnoreCase));
+                    string? relationshipId = sheet?.Id;
+
+                    if (sheet == null || relationshipId == null)
+                    {
+                        throw new InvalidExcelFileFoundException(excelFileLocation, "Werkblad 'Invulvelden' niet gevonden");
+                    }
 
                     Worksheet worksheet = ((WorksheetPart)workbookPart.GetPartById(relationshipId)).Worksheet;
+                    WorksheetPart? worksheetPart = worksheet.WorksheetPart;
 
-                    WorksheetPart worksheetPart = worksheet.WorksheetPart!;
-                    SheetData sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
+                    if (worksheetPart == null)
+                    {
+                        throw new InvalidExcelFileFoundException(excelFileLocation, "Werkblad 'Invulvelden' heeft geen worksheet part");
+                    }
 
-                    var lastRowIndex = sheetData.Elements<Row>().Select((row, index) => new
+                    var sheetDatas = worksheetPart.Worksheet.Elements<SheetData>();
+
+                    if (!sheetDatas.Any())
+                    {
+                        throw new InvalidExcelFileFoundException(excelFileLocation, "Geen sheet datas gevonden");
+                    }
+
+                    SheetData sheetData = sheetDatas.First();
+
+                    uint? lastRowIndex = sheetData.Elements<Row>().Select((row, index) => new
                     {
                         Row = row,
                         RowIndex = (uint)index
-                    }).First(row =>
+                    }).FirstOrDefault(row =>
                     {
                         return row.RowIndex > 4 && (!row.Row.HasChildren ||
                             (row.Row.Descendants<Cell>().Count() > 2 && row.Row.Descendants<Cell>().Skip(2).First().CellValue == null));
-                    }).RowIndex;
+                    })?.RowIndex;
+
+                    if (lastRowIndex == null)
+                    {
+                        throw new InvalidExcelFileFoundException(excelFileLocation, "Geen lege rij gevonden");
+                    }
 
                     for (int i = 0; i < files.Count; i++)
                     {
@@ -241,10 +289,10 @@ namespace Bestandenselektie.HKD.ViewModels
                         newRow.AppendChild(new Cell
                         {
                             DataType = CellValues.String,
-                            CellValue = new CellValue(file.FullPath)
+                            CellValue = new CellValue(file.Target ?? file.FullPath)
                         });
 
-                        sheetData.InsertAt(newRow, (int) (newRow.RowIndex.Value));
+                        sheetData.InsertAt(newRow, (int)(newRow.RowIndex.Value));
                     }
 
                     workbookPart.Workbook.Save();
@@ -252,7 +300,7 @@ namespace Bestandenselektie.HKD.ViewModels
 
                 return null;
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 return e;
             }
