@@ -241,13 +241,13 @@ namespace Bestandenselektie.HKD.ViewModels
 
                     SheetData sheetData = sheetDatas.First();
 
-                    uint? lastRowIndex = sheetData.Elements<Row>().Select((row, index) => new
+                    int? lastRowIndex = sheetData.Elements<Row>().Select((row, index) => new
                     {
                         Row = row,
-                        RowIndex = (uint)index
+                        RowIndex = index
                     }).FirstOrDefault(row =>
                     {
-                        return row.RowIndex > 4 && (!row.Row.HasChildren ||
+                        return row.RowIndex > 2 && (!row.Row.HasChildren ||
                             (row.Row.Descendants<Cell>().Count() > 2 && row.Row.Descendants<Cell>().Skip(2).First().CellValue == null));
                     })?.RowIndex;
 
@@ -267,24 +267,16 @@ namespace Bestandenselektie.HKD.ViewModels
                         newRow.AppendChild(new Cell
                         {
                             DataType = CellValues.Number,
-                            CellValue = new CellValue("" + (lastRowIndex - 5 + i + 1))
+                            CellValue = new CellValue("" + (lastRowIndex - 3 + i + 1))
                         });
 
                         newRow.AppendChild(new Cell
                         {
                             DataType = CellValues.String,
-                            CellValue = new CellValue(filename + (lastRowIndex - 5 + i + 1))
+                            CellValue = new CellValue(filename + (lastRowIndex - 3 + i + 1))
                         });
 
-                        newRow.Append(GenerateEmpty(18));
-
-                        newRow.AppendChild(new Cell
-                        {
-                            DataType = CellValues.Number,
-                            CellValue = new CellValue(0)
-                        });
-
-                        newRow.Append(GenerateEmpty(5));
+                        newRow.Append(GenerateEmpty(24));
 
                         newRow.AppendChild(new Cell
                         {
@@ -425,9 +417,9 @@ namespace Bestandenselektie.HKD.ViewModels
             get { return targetDirectory; }
             set
             {
-                var shouldUpdateExcelFilename = ShouldAutoGenerateExcelFileName;
-
                 SetProperty(ref targetDirectory, value);
+
+                var shouldUpdateExcelFilename = value != null && ShouldAutoGenerateExcelFileName;
                 if (shouldUpdateExcelFilename)
                 {
                     ExcelFileLocation = Path.Combine(TargetDirectory!, Path.GetFileNameWithoutExtension(TargetDirectory) + ".xlsx");
