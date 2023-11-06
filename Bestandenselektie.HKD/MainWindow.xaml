@@ -126,6 +126,57 @@
                                 <GridViewColumn DisplayMemberBinding="{Binding Created, Mode=OneWay}" Header="Gemaakt op" />
                                 <GridViewColumn DisplayMemberBinding="{Binding Modified, Mode=OneWay}" Header="Gewijzigd op" />
                                 <GridViewColumn DisplayMemberBinding="{Binding Directory, Mode=OneWay}" Header="Pad" />
+                                <GridViewColumn Header="Rubriek" Width="200">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox
+                                                IsEditable="True"
+                                                
+                                                ItemsSource="{Binding ReferenceData.Rubrieken}"
+                                                SelectedItem="{Binding Rubriek, Mode=TwoWay}"
+                                                Text="{Binding NewRubriek, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                DisplayMemberPath="Naam"
+                                            />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Sububriek" Width="200">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox
+                                                IsEditable="True"
+                                                ItemsSource="{Binding Rubriek.Subrubrieken}"
+                                                SelectedItem="{Binding Subrubriek, Mode=TwoWay}"
+                                                Text="{Binding NewSubrubriek, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                DisplayMemberPath="Naam"
+                                            />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Categorie" Width="200">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox
+                                                IsEditable="True"
+                                                ItemsSource="{Binding ReferenceData.Categorieen}"
+                                                SelectedItem="{Binding Categorie, Mode=TwoWay}"
+                                                Text="{Binding NewCategorie, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                            />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Collectie" Width="200">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox
+                                                IsEditable="True"
+                                                ItemsSource="{Binding ReferenceData.Collecties}"
+                                                SelectedItem="{Binding Collectie, Mode=TwoWay}"
+                                                Text="{Binding NewCollectie, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                            />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
                             </GridView>
                         </ListView.View>
                     </ListView>

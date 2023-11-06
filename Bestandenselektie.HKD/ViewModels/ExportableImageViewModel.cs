@@ -6,8 +6,8 @@ namespace Bestandenselektie.HKD.ViewModels
 {
     public class ExportableImageViewModel : ExportableFileViewModel
     {
-        public ExportableImageViewModel(ExplorerViewModel parentViewModel, FileInfo file, ExporterViewModel exporter)
-            : base(parentViewModel, file, exporter)
+        public ExportableImageViewModel(ExplorerViewModel parentViewModel, FileInfo file, ExporterViewModel exporter, ReferenceData referenceData)
+            : base(parentViewModel, file, exporter, referenceData)
         {
             try
             {

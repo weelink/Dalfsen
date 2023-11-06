@@ -1,7 +1,9 @@
 ﻿using Bestandenselektie.HKD.Extensions;
 using System;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace Bestandenselektie.HKD.ViewModels
 {
@@ -13,11 +15,16 @@ namespace Bestandenselektie.HKD.ViewModels
         private readonly ExporterViewModel exporter;
         private bool isSelected;
         private bool shouldExport;
+        private Rubriek? rubriek;
+        private Subrubriek? subrubriek;
+        private string? categorie;
+        private string? collectie;
 
-        protected ExportableFileViewModel(ExplorerViewModel parentViewModel, FileInfo file, ExporterViewModel exporter)
+        protected ExportableFileViewModel(ExplorerViewModel parentViewModel, FileInfo file, ExporterViewModel exporter, ReferenceData referenceData)
         {
             this.file = file;
             this.exporter = exporter;
+            ReferenceData = referenceData;
             ParentViewModel = parentViewModel;
             Name = file.Name;
             Extension = file.Extension;
@@ -81,6 +88,134 @@ namespace Bestandenselektie.HKD.ViewModels
         public virtual string? Dimensions { get; }
         public string? Target { get; private set; }
 
+        public Rubriek? Rubriek
+        {
+            get { return rubriek; }
+            set
+            {
+                if (value != null)
+                {
+                    Subrubriek = value.Subrubrieken.SingleOrDefault(s => s.Naam.Equals(Subrubriek?.Naam));
+                }
+
+                SetProperty(ref rubriek, value);
+            }
+        }
+
+        private string? newRubriek;
+        public string? NewRubriek
+        {
+            get
+            {
+                return newRubriek;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    return;
+                }
+
+                if (!ReferenceData.Rubrieken.Any(s => s.Naam.Equals(value, StringComparison.OrdinalIgnoreCase)))
+                {
+                    ReferenceData.Rubrieken.Add(new Rubriek(value));
+                }
+
+                Rubriek = ReferenceData.Rubrieken.LastOrDefault(s => s.Naam.Equals(value, StringComparison.OrdinalIgnoreCase));
+                SetProperty(ref newRubriek, value);
+            }
+        }
+
+        public Subrubriek? Subrubriek
+        {
+            get { return subrubriek; }
+            set { SetProperty(ref subrubriek, value); }
+        }
+
+        private string? newSubrubriek;
+        public string? NewSubrubriek
+        {
+            get
+            {
+                return newSubrubriek;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    return;
+                }
+
+                if (Rubriek != null &&!Rubriek.Subrubrieken.Any(s => s.Naam.Equals(value, StringComparison.OrdinalIgnoreCase)))
+                {
+                    Rubriek.Subrubrieken.Add(new Subrubriek(value));
+                }
+
+                Subrubriek = Rubriek.Subrubrieken.LastOrDefault(s => s.Naam.Equals(value, StringComparison.OrdinalIgnoreCase));
+                SetProperty(ref newSubrubriek, value);
+            }
+        }
+
+        public string? Categorie
+        {
+            get { return categorie; }
+            set { SetProperty(ref categorie, value); }
+        }
+
+        private string? newCategorie;
+        public string? NewCategorie
+        {
+            get
+            {
+                return newCategorie;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    return;
+                }
+
+                if (!ReferenceData.Categorieen.Contains(value))
+                {
+                    ReferenceData.Categorieen.Add(value);
+                }
+
+                Categorie = value;
+                SetProperty(ref newCategorie, value);
+            }
+        }
+
+        public string? Collectie
+        {
+            get { return collectie; }
+            set { SetProperty(ref collectie, value); }
+        }
+
+        private string? newCollectie;
+        public string? NewCollectie
+        {
+            get
+            {
+                return newCollectie;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    return;
+                }
+
+                if (!ReferenceData.Collecties.Contains(value))
+                {
+                    ReferenceData.Collecties.Add(value);
+                }
+
+                Collectie = value;
+                SetProperty(ref newCollectie, value);
+            }
+        }
+
         public string Size
         {
             get
@@ -95,6 +230,7 @@ namespace Bestandenselektie.HKD.ViewModels
         }
 
         public ExplorerViewModel ParentViewModel { get; }
+        public ReferenceData ReferenceData { get; }
 
         public void CopyTo(string targetDirectory)
         {

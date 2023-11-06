@@ -241,42 +241,144 @@ namespace Bestandenselektie.HKD.ViewModels
 
                     SheetData sheetData = sheetDatas.First();
 
-                    int? lastRowIndex = sheetData.Elements<Row>().Select((row, index) => new
+                    Row? lastRow = sheetData.Elements<Row>().FirstOrDefault(row =>
                     {
-                        Row = row,
-                        RowIndex = index
-                    }).FirstOrDefault(row =>
-                    {
-                        return row.RowIndex > 2 && (!row.Row.HasChildren ||
-                            (row.Row.Descendants<Cell>().Count() > 2 && row.Row.Descendants<Cell>().Skip(2).First().CellValue == null));
-                    })?.RowIndex;
+                        return row.RowIndex != null && row.RowIndex.Value > 2 && (!row.HasChildren ||
+                            (row.Descendants<Cell>().Count() > 2 && row.Descendants<Cell>().Skip(2).First().CellValue == null));
+                    }) ?? sheetData.Elements<Row>().LastOrDefault(row => row.RowIndex != null);
 
-                    if (lastRowIndex == null)
+                    if (lastRow == null)
                     {
                         throw new InvalidExcelFileFoundException(excelFileLocation, "Geen lege rij gevonden");
                     }
+
+                    uint rowIndex = lastRow.RowIndex!.Value;
 
                     for (int i = 0; i < files.Count; i++)
                     {
                         ExportableFileViewModel file = files[i];
 
-                        Row newRow = new Row { RowIndex = (uint)(lastRowIndex + i) };
+                        Row newRow = new Row();
 
                         newRow.Append(GenerateEmpty(2));
 
                         newRow.AppendChild(new Cell
                         {
                             DataType = CellValues.Number,
-                            CellValue = new CellValue("" + (lastRowIndex - 3 + i + 1))
+                            CellValue = new CellValue("" + (rowIndex - 2 + i + 1))
                         });
 
                         newRow.AppendChild(new Cell
                         {
                             DataType = CellValues.String,
-                            CellValue = new CellValue(filename + (lastRowIndex - 3 + i + 1))
+                            CellValue = new CellValue(filename + (rowIndex - 2 + i + 1))
                         });
 
-                        newRow.Append(GenerateEmpty(24));
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue(file.Rubriek?.Naam ?? string.Empty)
+                        });
+
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue(file.Subrubriek?.Naam ?? string.Empty)
+                        });
+
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue("Titel")
+                        });
+
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue("Omschrijving")
+                        });
+
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue("Fotograaf")
+                        });
+
+                        newRow.Append(GenerateEmpty(1));
+
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue("Datering")
+                        });
+
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue("Extra foto's")
+                        });
+
+                        newRow.Append(GenerateEmpty(1));
+
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue("Plaats")
+                        });
+
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue("Buurtschap/wijk")
+                        });
+
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue("Adres (of locatie)")
+                        });
+
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue("Locatie afbeelding")
+                        });
+
+                        newRow.Append(GenerateEmpty(1));
+
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue("Archiefnr foto")
+                        });
+
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue("Archieflocatie")
+                        });
+
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue("Interne opm.")
+                        });
+
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue(file.Categorie ?? string.Empty)
+                        });
+
+                        newRow.Append(GenerateEmpty(2));
+
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue(file.Collectie ?? string.Empty)
+                        });
+
+                        newRow.Append(GenerateEmpty(3));
 
                         newRow.AppendChild(new Cell
                         {
@@ -284,7 +386,10 @@ namespace Bestandenselektie.HKD.ViewModels
                             CellValue = new CellValue(file.Target ?? file.FullPath)
                         });
 
-                        sheetData.InsertAt(newRow, (int)(newRow.RowIndex.Value));
+                        newRow.Append(GenerateEmpty(7));
+
+                        sheetData.InsertAfter(newRow, lastRow);
+                        lastRow = newRow;
                     }
 
                     workbookPart.Workbook.Save();

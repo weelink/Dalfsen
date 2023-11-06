@@ -55,10 +55,11 @@ namespace Bestandenselektie.HKD.ViewModels
         private CancellationTokenSource? cancellationTokenSource;
         private readonly StatusBarViewModel statusIndicator;
 
-        public FileGridViewModel(StatusBarViewModel statusIndicator, ExporterViewModel exporter)
+        public FileGridViewModel(StatusBarViewModel statusIndicator, ExporterViewModel exporter, ReferenceData referenceData)
         {
             this.statusIndicator = statusIndicator;
             Exporter = exporter;
+            ReferenceData = referenceData;
             Files = new SmartCollection<ExportableFileViewModel>();
             totalSize = string.Empty;
             AllImagesSelected = AllExcelsSelected = AllPdfsSelected = AllRoutesSelected = AllVideosSelected = AllWordsSelected = AllSelected = false;
@@ -147,6 +148,7 @@ namespace Bestandenselektie.HKD.ViewModels
         }
 
         public ExporterViewModel Exporter { get; }
+        public ReferenceData ReferenceData { get; }
 
         public ExplorerViewModel? Directory
         {
@@ -321,32 +323,32 @@ namespace Bestandenselektie.HKD.ViewModels
 
             if (ImageExtensions.Contains(extension))
             {
-                return new ExportableImageViewModel(directory, file, Exporter);
+                return new ExportableImageViewModel(directory, file, Exporter, ReferenceData);
             }
 
             if (VideoExtensions.Contains(extension))
             {
-                return new ExportableVideoViewModel(directory, file, Exporter);
+                return new ExportableVideoViewModel(directory, file, Exporter, ReferenceData);
             }
 
             if (PdfExtensions.Contains(extension))
             {
-                return new ExportablePdfViewModel(directory, file, Exporter);
+                return new ExportablePdfViewModel(directory, file, Exporter, ReferenceData);
             }
 
             if (WordExtensions.Contains(extension))
             {
-                return new ExportableWordViewModel(directory, file, Exporter);
+                return new ExportableWordViewModel(directory, file, Exporter, ReferenceData);
             }
 
             if (ExcelExtensions.Contains(extension))
             {
-                return new ExportableExcelViewModel(directory, file, Exporter);
+                return new ExportableExcelViewModel(directory, file, Exporter, ReferenceData);
             }
 
             if (RouteExtensions.Contains(extension))
             {
-                return new ExportableRoutesViewModel(directory, file, Exporter);
+                return new ExportableRoutesViewModel(directory, file, Exporter, ReferenceData);
             }
 
             return null;

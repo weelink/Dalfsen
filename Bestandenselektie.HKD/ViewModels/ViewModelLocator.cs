@@ -11,7 +11,8 @@ namespace Bestandenselektie.HKD.ViewModels
             ExporterViewModel = new ExporterViewModel(storage);
             StatusBarViewModel = new StatusBarViewModel();
             MainWindowViewModel = new MainWindowViewModel(storage);
-            FileGridViewModel = new FileGridViewModel(StatusBarViewModel, ExporterViewModel);
+            var referenceData = new ReferenceData();
+            FileGridViewModel = new FileGridViewModel(StatusBarViewModel, ExporterViewModel, referenceData);
         }
 
         public MainWindowViewModel MainWindowViewModel { get; }
