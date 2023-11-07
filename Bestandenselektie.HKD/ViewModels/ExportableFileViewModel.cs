@@ -56,6 +56,11 @@ namespace Bestandenselektie.HKD.ViewModels
                         exporter.Deselect(this);
                     }
                 }
+
+                if (args.PropertyName == nameof(Rubriek))
+                {
+                    OnPropertyChanged(nameof(HasRubriek));
+                }
             };
 
             try
@@ -107,6 +112,14 @@ namespace Bestandenselektie.HKD.ViewModels
             }
         }
 
+        public bool HasRubriek
+        {
+            get
+            {
+                return Rubriek != null && !string.IsNullOrWhiteSpace(Rubriek.Naam);
+            }
+        }
+
         private string? newRubriek;
         public string? NewRubriek
         {
@@ -116,8 +129,10 @@ namespace Bestandenselektie.HKD.ViewModels
             }
             set
             {
-                if (value == null)
+                if (string.IsNullOrWhiteSpace(value))
                 {
+                    Rubriek = null;
+                    SetProperty(ref newRubriek, null);
                     return;
                 }
 
@@ -146,8 +161,10 @@ namespace Bestandenselektie.HKD.ViewModels
             }
             set
             {
-                if (value == null)
+                if (string.IsNullOrWhiteSpace(value))
                 {
+                    Subrubriek = null;
+                    SetProperty(ref newSubrubriek, value);
                     return;
                 }
 
@@ -187,8 +204,10 @@ namespace Bestandenselektie.HKD.ViewModels
             }
             set
             {
-                if (value == null)
+                if (string.IsNullOrWhiteSpace(value))
                 {
+                    Categorie = null;
+                    SetProperty(ref newCategorie, null);
                     return;
                 }
 
@@ -217,8 +236,10 @@ namespace Bestandenselektie.HKD.ViewModels
             }
             set
             {
-                if (value == null)
+                if (string.IsNullOrWhiteSpace(value))
                 {
+                    Collectie = null;
+                    SetProperty(ref newCollectie, value);
                     return;
                 }
 
@@ -266,8 +287,10 @@ namespace Bestandenselektie.HKD.ViewModels
             }
             set
             {
-                if (value == null)
+                if (string.IsNullOrWhiteSpace(value))
                 {
+                    Plaats = null;
+                    SetProperty(ref newPlaats, value);
                     return;
                 }
 

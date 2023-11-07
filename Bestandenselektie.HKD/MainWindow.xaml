@@ -153,11 +153,12 @@
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <ComboBox
-                                                IsEditable="True"
+                                                IsEditable="{Binding HasRubriek}"
                                                 ItemsSource="{Binding Rubriek.Subrubrieken}"
                                                 SelectedItem="{Binding Subrubriek, Mode=TwoWay}"
                                                 Text="{Binding NewSubrubriek, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                 DisplayMemberPath="Naam"
+                                                IsEnabled="{Binding HasRubriek}"
                                             />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
