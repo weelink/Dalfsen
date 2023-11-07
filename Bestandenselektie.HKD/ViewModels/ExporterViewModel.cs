@@ -356,7 +356,7 @@ namespace Bestandenselektie.HKD.ViewModels
                         newRow.AppendChild(new Cell
                         {
                             DataType = CellValues.String,
-                            CellValue = new CellValue("Licentie")
+                            CellValue = new CellValue(file.Licentie)
                         });
 
                         newRow.Append(GenerateEmpty(6));

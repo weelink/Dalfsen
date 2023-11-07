@@ -171,6 +171,13 @@ namespace Bestandenselektie.HKD.ViewModels
             set { SetProperty(ref categorie, value); }
         }
 
+        private string? licentie;
+        public string? Licentie
+        {
+            get { return licentie; }
+            set { SetProperty(ref licentie, value); }
+        }
+
         private string? newCategorie;
         public string? NewCategorie
         {
