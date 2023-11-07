@@ -19,6 +19,11 @@ namespace Bestandenselektie.HKD.ViewModels
         private Subrubriek? subrubriek;
         private string? categorie;
         private string? collectie;
+        private string? titel;
+        private string? fotograaf;
+        private string? datering;
+        private string? plaats;
+        private string? archieflocatie;
 
         protected ExportableFileViewModel(ExplorerViewModel parentViewModel, FileInfo file, ExporterViewModel exporter, ReferenceData referenceData)
         {
@@ -146,12 +151,16 @@ namespace Bestandenselektie.HKD.ViewModels
                     return;
                 }
 
-                if (Rubriek != null &&!Rubriek.Subrubrieken.Any(s => s.Naam.Equals(value, StringComparison.OrdinalIgnoreCase)))
+                if (Rubriek != null)
                 {
-                    Rubriek.Subrubrieken.Add(new Subrubriek(value));
+                    if (!Rubriek.Subrubrieken.Any(s => s.Naam.Equals(value, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        Rubriek.Subrubrieken.Add(new Subrubriek(value));
+                    }
+
+                    Subrubriek = Rubriek.Subrubrieken.LastOrDefault(s => s.Naam.Equals(value, StringComparison.OrdinalIgnoreCase));
                 }
 
-                Subrubriek = Rubriek.Subrubrieken.LastOrDefault(s => s.Naam.Equals(value, StringComparison.OrdinalIgnoreCase));
                 SetProperty(ref newSubrubriek, value);
             }
         }
@@ -214,6 +223,61 @@ namespace Bestandenselektie.HKD.ViewModels
                 Collectie = value;
                 SetProperty(ref newCollectie, value);
             }
+        }
+
+        public string? Titel
+        {
+            get { return titel; }
+            set { SetProperty(ref titel, value); }
+        }
+
+        public string? Fotograaf
+        {
+            get { return fotograaf; }
+            set { SetProperty(ref fotograaf, value); }
+        }
+
+        public string? Datering
+        {
+            get { return datering; }
+            set { SetProperty(ref datering, value); }
+        }
+
+        public string? Plaats
+        {
+            get { return plaats; }
+            set { SetProperty(ref plaats, value); }
+        }
+
+
+        private string? newPlaats;
+        public string? NewPlaats
+        {
+            get
+            {
+                return newPlaats;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    return;
+                }
+
+                if (!ReferenceData.Plaatsen.Contains(value))
+                {
+                    ReferenceData.Plaatsen.Add(value);
+                }
+
+                Plaats = value;
+                SetProperty(ref newPlaats, value);
+            }
+        }
+
+        public string? Archieflocatie
+        {
+            get { return archieflocatie; }
+            set { SetProperty(ref archieflocatie, value); }
         }
 
         public string Size

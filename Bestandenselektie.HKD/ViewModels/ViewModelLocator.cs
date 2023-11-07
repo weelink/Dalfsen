@@ -7,11 +7,11 @@ namespace Bestandenselektie.HKD.ViewModels
         public ViewModelLocator()
         {
             var storage = new Storage();
+            var referenceData = new ReferenceData(storage);
 
-            ExporterViewModel = new ExporterViewModel(storage);
+            ExporterViewModel = new ExporterViewModel(storage, referenceData);
             StatusBarViewModel = new StatusBarViewModel();
             MainWindowViewModel = new MainWindowViewModel(storage);
-            var referenceData = new ReferenceData();
             FileGridViewModel = new FileGridViewModel(StatusBarViewModel, ExporterViewModel, referenceData);
         }
 

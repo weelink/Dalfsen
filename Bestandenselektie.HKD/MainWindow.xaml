@@ -126,12 +126,21 @@
                                 <GridViewColumn DisplayMemberBinding="{Binding Created, Mode=OneWay}" Header="Gemaakt op" />
                                 <GridViewColumn DisplayMemberBinding="{Binding Modified, Mode=OneWay}" Header="Gewijzigd op" />
                                 <GridViewColumn DisplayMemberBinding="{Binding Directory, Mode=OneWay}" Header="Pad" />
+                                <GridViewColumn Header="Titel" Width="200">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBox
+                                                Text="{Binding Titel, Mode=TwoWay}"
+                                                MaxLength="25"
+                                            />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
                                 <GridViewColumn Header="Rubriek" Width="200">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <ComboBox
                                                 IsEditable="True"
-                                                
                                                 ItemsSource="{Binding ReferenceData.Rubrieken}"
                                                 SelectedItem="{Binding Rubriek, Mode=TwoWay}"
                                                 Text="{Binding NewRubriek, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
@@ -173,6 +182,49 @@
                                                 ItemsSource="{Binding ReferenceData.Collecties}"
                                                 SelectedItem="{Binding Collectie, Mode=TwoWay}"
                                                 Text="{Binding NewCollectie, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                views:EditableComboBox.MaxLength="25"
+                                            />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Fotograaf" Width="200">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBox
+                                                Text="{Binding Fotograaf, Mode=TwoWay}"
+                                                MaxLength="25"
+                                            />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Datering" Width="200">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBox
+                                                Text="{Binding Datering, Mode=TwoWay}"
+                                                MaxLength="25"
+                                            />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Plaats" Width="200">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ComboBox
+                                                IsEditable="True"
+                                                ItemsSource="{Binding ReferenceData.Plaatsen}"
+                                                SelectedItem="{Binding Plaats, Mode=TwoWay}"
+                                                Text="{Binding NewPlaats, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                            />
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Archieflocatie" Width="200">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBox
+                                                Text="{Binding Archieflocatie, Mode=TwoWay}"
+                                                MaxLength="25"
                                             />
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>

@@ -5,6 +5,11 @@ namespace Bestandenselektie.HKD.ViewModels
 {
     public class Rubriek
     {
+        public Rubriek()
+            : this(string.Empty)
+        {
+        }
+
         public Rubriek(string naam, params string[] subrubrieken)
         {
             Naam = naam;
@@ -26,18 +31,23 @@ namespace Bestandenselektie.HKD.ViewModels
             return Naam;
         }
 
-        public string Naam { get; }
+        public string Naam { get; set; }
         public IList<Subrubriek> Subrubrieken { get; set; }
     }
 
     public class Subrubriek
     {
-        public string Naam { get; }
+        public Subrubriek()
+            : this(string.Empty)
+        {
+        }
 
         public Subrubriek(string naam)
         {
             Naam = naam;
         }
+
+        public string Naam { get; set; }
 
         public override int GetHashCode()
         {

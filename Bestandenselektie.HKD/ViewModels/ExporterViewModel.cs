@@ -20,6 +20,7 @@ using System.Globalization;
 using Bestandenselektie.HKD.Services;
 using System.Threading;
 using Bestandenselektie.HKD.Exceptions;
+using DocumentFormat.OpenXml;
 
 namespace Bestandenselektie.HKD.ViewModels
 {
@@ -32,16 +33,18 @@ namespace Bestandenselektie.HKD.ViewModels
         private bool isExportWindowOpen;
         private bool isValid;
         private bool exportAsExcel;
-        private bool fileExists;
         private bool markDirectoriesAsProcessed;
         private readonly ProgressDialog dialog;
         private readonly Storage storage;
         private MetroWindow? parent;
         private CancellationTokenSource? exportcancelled;
+        private ReferenceData referenceData;
 
-        public ExporterViewModel(Storage storage)
+        public ExporterViewModel(Storage storage, ReferenceData referenceData)
         {
             this.storage = storage;
+            this.referenceData = referenceData;
+
             settings = storage.ReadSettings();
             
             files = new HashSet<ExportableFileViewModel>();
@@ -57,7 +60,6 @@ namespace Bestandenselektie.HKD.ViewModels
             ConflictResolutions = settings.ConflictResolutions.ToArray();
             ExportAsExcel = settings.ExportToExcel;
             ExcelFileLocation = settings.ExcelFilename;
-            FileExists = File.Exists(ExcelFileLocation);
             MarkDirectoriesAsProcessed = settings.MarkDirectoriesAsProcessed;
 
             PropertyChanged += ExporterViewModel_PropertyChanged;
@@ -144,6 +146,8 @@ namespace Bestandenselektie.HKD.ViewModels
             settings.ExportToExcel = ExportAsExcel;
             settings.ExcelFilename = ExcelFileLocation;
             settings.MarkDirectoriesAsProcessed = MarkDirectoriesAsProcessed;
+
+            referenceData.Update(settings);
 
             storage.Write(settings);
 
@@ -252,13 +256,14 @@ namespace Bestandenselektie.HKD.ViewModels
                         throw new InvalidExcelFileFoundException(excelFileLocation, "Geen lege rij gevonden");
                     }
 
-                    uint rowIndex = lastRow.RowIndex!.Value;
+                    var rowIndex = lastRow.RowIndex!.Value;
 
                     for (int i = 0; i < files.Count; i++)
                     {
                         ExportableFileViewModel file = files[i];
 
-                        Row newRow = new Row();
+                        uint newRowIndex = Convert.ToUInt32(rowIndex + i + 1);
+                        Row newRow = new Row { RowIndex = newRowIndex };
 
                         newRow.Append(GenerateEmpty(2));
 
@@ -289,19 +294,7 @@ namespace Bestandenselektie.HKD.ViewModels
                         newRow.AppendChild(new Cell
                         {
                             DataType = CellValues.String,
-                            CellValue = new CellValue("Titel")
-                        });
-
-                        newRow.AppendChild(new Cell
-                        {
-                            DataType = CellValues.String,
-                            CellValue = new CellValue("Omschrijving")
-                        });
-
-                        newRow.AppendChild(new Cell
-                        {
-                            DataType = CellValues.String,
-                            CellValue = new CellValue("Fotograaf")
+                            CellValue = new CellValue(file.Titel ?? string.Empty)
                         });
 
                         newRow.Append(GenerateEmpty(1));
@@ -309,13 +302,7 @@ namespace Bestandenselektie.HKD.ViewModels
                         newRow.AppendChild(new Cell
                         {
                             DataType = CellValues.String,
-                            CellValue = new CellValue("Datering")
-                        });
-
-                        newRow.AppendChild(new Cell
-                        {
-                            DataType = CellValues.String,
-                            CellValue = new CellValue("Extra foto's")
+                            CellValue = new CellValue(file.Fotograaf ?? string.Empty)
                         });
 
                         newRow.Append(GenerateEmpty(1));
@@ -323,46 +310,26 @@ namespace Bestandenselektie.HKD.ViewModels
                         newRow.AppendChild(new Cell
                         {
                             DataType = CellValues.String,
-                            CellValue = new CellValue("Plaats")
+                            CellValue = new CellValue(file.Datering ?? string.Empty)
                         });
+
+                        newRow.Append(GenerateEmpty(2));
 
                         newRow.AppendChild(new Cell
                         {
                             DataType = CellValues.String,
-                            CellValue = new CellValue("Buurtschap/wijk")
+                            CellValue = new CellValue(file.Plaats ?? string.Empty)
                         });
+
+                        newRow.Append(GenerateEmpty(5));
 
                         newRow.AppendChild(new Cell
                         {
                             DataType = CellValues.String,
-                            CellValue = new CellValue("Adres (of locatie)")
-                        });
-
-                        newRow.AppendChild(new Cell
-                        {
-                            DataType = CellValues.String,
-                            CellValue = new CellValue("Locatie afbeelding")
+                            CellValue = new CellValue(file.Archieflocatie ?? string.Empty)
                         });
 
                         newRow.Append(GenerateEmpty(1));
-
-                        newRow.AppendChild(new Cell
-                        {
-                            DataType = CellValues.String,
-                            CellValue = new CellValue("Archiefnr foto")
-                        });
-
-                        newRow.AppendChild(new Cell
-                        {
-                            DataType = CellValues.String,
-                            CellValue = new CellValue("Archieflocatie")
-                        });
-
-                        newRow.AppendChild(new Cell
-                        {
-                            DataType = CellValues.String,
-                            CellValue = new CellValue("Interne opm.")
-                        });
 
                         newRow.AppendChild(new Cell
                         {
@@ -386,7 +353,13 @@ namespace Bestandenselektie.HKD.ViewModels
                             CellValue = new CellValue(file.Target ?? file.FullPath)
                         });
 
-                        newRow.Append(GenerateEmpty(7));
+                        newRow.AppendChild(new Cell
+                        {
+                            DataType = CellValues.String,
+                            CellValue = new CellValue("Licentie")
+                        });
+
+                        newRow.Append(GenerateEmpty(6));
 
                         sheetData.InsertAfter(newRow, lastRow);
                         lastRow = newRow;
@@ -463,9 +436,9 @@ namespace Bestandenselektie.HKD.ViewModels
 
         private void ExporterViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(ExcelFileLocation))
+            if (e.PropertyName == nameof(ExcelFileLocation) || e.PropertyName == nameof(IsExportWindowOpen))
             {
-                FileExists = File.Exists(ExcelFileLocation);
+                OnPropertyChanged(nameof(FileExists));
             }
 
             if (e.PropertyName == nameof(TargetDirectory))
@@ -540,8 +513,7 @@ namespace Bestandenselektie.HKD.ViewModels
 
         public bool FileExists
         {
-            get { return fileExists; }
-            set { SetProperty(ref fileExists, value); }
+            get { return File.Exists(ExcelFileLocation); }
         }
 
         public bool MarkDirectoriesAsProcessed
