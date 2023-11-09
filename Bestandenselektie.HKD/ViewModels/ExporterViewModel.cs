@@ -305,15 +305,13 @@ namespace Bestandenselektie.HKD.ViewModels
                             CellValue = new CellValue(file.Fotograaf ?? string.Empty)
                         });
 
-                        newRow.Append(GenerateEmpty(1));
-
                         newRow.AppendChild(new Cell
                         {
                             DataType = CellValues.String,
                             CellValue = new CellValue(file.Datering ?? string.Empty)
                         });
 
-                        newRow.Append(GenerateEmpty(2));
+                        newRow.Append(GenerateEmpty(3));
 
                         newRow.AppendChild(new Cell
                         {
