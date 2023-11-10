@@ -442,21 +442,10 @@ namespace Bestandenselektie.HKD.ViewModels
             if (e.PropertyName == nameof(TargetDirectory))
             {
                 Validate();
-            }
-        }
 
-        private bool ShouldAutoGenerateExcelFileName
-        {
-            get
-            {
-                try
+                if (IsValid)
                 {
-                    return string.IsNullOrEmpty(TargetDirectory) ||
-                    string.IsNullOrEmpty(ExcelFileLocation) ||
-                    Path.GetFullPath(TargetDirectory!).Equals(Path.GetFullPath(Path.GetDirectoryName(ExcelFileLocation)!), StringComparison.CurrentCultureIgnoreCase);
-                } catch (Exception)
-                {
-                    return false;
+                    ExcelFileLocation = Path.Combine(TargetDirectory!, Path.GetFileNameWithoutExtension(TargetDirectory) + ".xlsx");
                 }
             }
         }
@@ -494,12 +483,6 @@ namespace Bestandenselektie.HKD.ViewModels
             set
             {
                 SetProperty(ref targetDirectory, value);
-
-                var shouldUpdateExcelFilename = value != null && ShouldAutoGenerateExcelFileName;
-                if (shouldUpdateExcelFilename)
-                {
-                    ExcelFileLocation = Path.Combine(TargetDirectory!, Path.GetFileNameWithoutExtension(TargetDirectory) + ".xlsx");
-                }
             }
         }
 
