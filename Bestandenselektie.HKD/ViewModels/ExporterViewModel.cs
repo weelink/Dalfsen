@@ -105,10 +105,12 @@ namespace Bestandenselektie.HKD.ViewModels
                       $"Technische foutcode: {exception.TechnicalReason}";
 
                 MessageBox.Show(parent, message, "Expoteren", MessageBoxButton.OK, MessageBoxImage.Error);
+            } else if (e.Result is Exception exception2)
+            {
+                MessageBox.Show(parent, exception2.Message, "Expoteren", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else
             {
-                MessageBox.Show(parent, ((Exception)e.Result).Message, "Expoteren", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -354,7 +356,7 @@ namespace Bestandenselektie.HKD.ViewModels
                         newRow.AppendChild(new Cell
                         {
                             DataType = CellValues.String,
-                            CellValue = new CellValue(file.Licentie)
+                            CellValue = new CellValue(file.Licentie ?? string.Empty)
                         });
 
                         newRow.Append(GenerateEmpty(6));
