@@ -347,10 +347,14 @@ namespace Bestandenselektie.HKD.ViewModels
 
                         newRow.Append(GenerateEmpty(3));
 
+                        var path = file.Target ?? file.FullPath;
+                        var segments = path.Split(Path.VolumeSeparatorChar).Last().Split(Path.DirectorySeparatorChar).TakeLast(3);
+                        string newPath = Path.DirectorySeparatorChar + Path.Combine(segments.ToArray());
+
                         newRow.AppendChild(new Cell
                         {
                             DataType = CellValues.String,
-                            CellValue = new CellValue(file.Target ?? file.FullPath)
+                            CellValue = new CellValue(newPath)
                         });
 
                         newRow.AppendChild(new Cell
@@ -447,7 +451,27 @@ namespace Bestandenselektie.HKD.ViewModels
 
                 if (IsValid)
                 {
-                    ExcelFileLocation = Path.Combine(TargetDirectory!, Path.GetFileNameWithoutExtension(TargetDirectory) + ".xlsx");
+                    var target = TargetDirectory!;
+                    while (Path.EndsInDirectorySeparator(target))
+                    {
+                        var newTarget = Path.TrimEndingDirectorySeparator(target);
+
+                        if (newTarget == target)
+                        {
+                            break;
+                        }
+
+                        target = newTarget;
+                    }
+
+                    var file = Path.GetFileNameWithoutExtension(target);
+
+                    if (string.IsNullOrWhiteSpace(file))
+                    {
+                        file = "export";
+                    }
+
+                    ExcelFileLocation = Path.Combine(target, file + ".xlsx");
                 }
             }
         }

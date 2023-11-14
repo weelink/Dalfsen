@@ -1,13 +1,12 @@
 ﻿using Bestandenselektie.HKD.Extensions;
 using System;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 
 namespace Bestandenselektie.HKD.ViewModels
 {
-    public abstract class ExportableFileViewModel : ViewModel
+    public abstract class ExportableFileViewModel : ViewModel, IComparable<ExportableFileViewModel>
     {
         private static readonly CultureInfo DutchCulture = new CultureInfo("nl-NL");
 
@@ -393,6 +392,16 @@ namespace Bestandenselektie.HKD.ViewModels
             }
 
             return false;
+        }
+
+        public int CompareTo(ExportableFileViewModel? other)
+        {
+            if (other == null || other.file == null)
+            {
+                return 1;
+            }
+
+            return file.FullName.CompareTo(other.file.FullName);
         }
     }
 }

@@ -107,38 +107,58 @@
                 </Grid.RowDefinitions>
 
                 <GroupBox Grid.Row="1" Margin="50,10" Header="Selectie">
-                    <ListView ItemsSource="{Binding Files}">
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Header="Exporteren?">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
+                    <DataGrid ItemsSource="{Binding Files}" FrozenColumnCount="3" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Exporteren?">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel VerticalAlignment="Center">
                                             <CheckBox IsChecked="{Binding Path=ShouldExport, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Width="128" CellTemplateSelector="{StaticResource ExportableFileTemplateSelector}">
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Binding="{Binding Name, Mode=OneWay}" Header="Naam" />
+                            <DataGridTextColumn Binding="{Binding Extension, Mode=OneWay}" Header="Bestandstype" />
+                            <DataGridTextColumn Binding="{Binding Dimensions, Mode=OneWay}" Header="Afmetingen" />
+                            <DataGridTextColumn Binding="{Binding Size, Mode=OneWay}" Header="Grootte" />
+                            <DataGridTextColumn Binding="{Binding Created, Mode=OneWay}" Header="Gemaakt op" />
+                            <DataGridTextColumn Binding="{Binding Modified, Mode=OneWay}" Header="Gewijzigd op" />
+                            <DataGridTextColumn Binding="{Binding Directory, Mode=OneWay}" Header="Pad" />
 
-                                <GridViewColumn Width="128" CellTemplateSelector="{StaticResource ExportableFileTemplateSelector}" />
-                                <GridViewColumn DisplayMemberBinding="{Binding Name, Mode=OneWay}" Header="Naam" />
-                                <GridViewColumn DisplayMemberBinding="{Binding Extension, Mode=OneWay}" Header="Bestandstype" />
-                                <GridViewColumn DisplayMemberBinding="{Binding Dimensions, Mode=OneWay}" Header="Afmetingen" />
-                                <GridViewColumn DisplayMemberBinding="{Binding Size, Mode=OneWay}" Header="Grootte" />
-                                <GridViewColumn DisplayMemberBinding="{Binding Created, Mode=OneWay}" Header="Gemaakt op" />
-                                <GridViewColumn DisplayMemberBinding="{Binding Modified, Mode=OneWay}" Header="Gewijzigd op" />
-                                <GridViewColumn DisplayMemberBinding="{Binding Directory, Mode=OneWay}" Header="Pad" />
-                                <GridViewColumn Header="Titel" Width="200">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
+                            <DataGridTemplateColumn Header="Titel" Width="200">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel VerticalAlignment="Center">
                                             <TextBox
-                                                Text="{Binding Titel, Mode=TwoWay}"
+                                                Text="{Binding Titel, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                 MaxLength="25"
                                             />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Rubriek" Width="200">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Rubriek" Width="200">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel VerticalAlignment="Center">
                                             <ComboBox
                                                 IsEditable="True"
                                                 ItemsSource="{Binding ReferenceData.Rubrieken}"
@@ -146,38 +166,58 @@
                                                 Text="{Binding NewRubriek, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                 DisplayMemberPath="Naam"
                                             />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Sububriek" Width="200">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Sububriek" Width="200">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel VerticalAlignment="Center">
                                             <ComboBox
                                                 IsEditable="{Binding HasRubriek}"
                                                 ItemsSource="{Binding Rubriek.Subrubrieken}"
                                                 SelectedItem="{Binding Subrubriek, Mode=TwoWay}"
                                                 Text="{Binding NewSubrubriek, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                 DisplayMemberPath="Naam"
-                                                IsEnabled="{Binding HasRubriek}"
                                             />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Categorie" Width="200">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Categorie" Width="200">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel VerticalAlignment="Center">
                                             <ComboBox
                                                 IsEditable="True"
                                                 ItemsSource="{Binding ReferenceData.Categorieen}"
                                                 SelectedItem="{Binding Categorie, Mode=TwoWay}"
                                                 Text="{Binding NewCategorie, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                             />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Collectie" Width="200">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Collectie" Width="200">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel VerticalAlignment="Center">
                                             <ComboBox
                                                 IsEditable="True"
                                                 ItemsSource="{Binding ReferenceData.Collecties}"
@@ -185,64 +225,104 @@
                                                 Text="{Binding NewCollectie, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                 views:EditableComboBox.MaxLength="25"
                                             />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Fotograaf" Width="200">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Fotograaf" Width="200">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel VerticalAlignment="Center">
                                             <TextBox
-                                                Text="{Binding Fotograaf, Mode=TwoWay}"
+                                                Text="{Binding Fotograaf, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                 MaxLength="25"
                                             />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Datering" Width="200">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Datering" Width="200">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel VerticalAlignment="Center">
                                             <TextBox
-                                                Text="{Binding Datering, Mode=TwoWay}"
+                                                Text="{Binding Datering, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                 MaxLength="25"
                                             />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Plaats" Width="200">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Plaats" Width="200">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel VerticalAlignment="Center">
                                             <ComboBox
                                                 IsEditable="True"
                                                 ItemsSource="{Binding ReferenceData.Plaatsen}"
                                                 SelectedItem="{Binding Plaats, Mode=TwoWay}"
                                                 Text="{Binding NewPlaats, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                             />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Archieflocatie" Width="200">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Archieflocatie" Width="200">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel VerticalAlignment="Center">
                                             <TextBox
-                                                Text="{Binding Archieflocatie, Mode=TwoWay}"
+                                                Text="{Binding Archieflocatie, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                 MaxLength="25"
                                             />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Rechten" Width="200">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Rechten" Width="200">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel VerticalAlignment="Center">
                                             <TextBox
-                                                Text="{Binding Licentie, Mode=TwoWay}"
+                                                Text="{Binding Licentie, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
                                                 MaxLength="25"
                                             />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="KeyboardNavigation.IsTabStop" Value="False" />
+                                    </Style>
+                                </DataGridTemplateColumn.CellStyle>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </GroupBox>
 
                 <GroupBox Grid.Row="0" Margin="50,10" Header="Instellingen">
