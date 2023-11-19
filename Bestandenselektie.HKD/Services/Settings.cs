@@ -124,6 +124,7 @@ namespace Bestandenselektie.HKD.Services
         public HashSet<string> ProcessedDirectories { get; set; }
         public bool ExportToExcel { get; set; }
         public bool MarkDirectoriesAsProcessed { get; set; }
+        public bool FilenamesAsDescription { get; set; }
         public string? ExcelFilename { get; set; }
         public IList<Rubriek> Rubrieken { get; set; }
         public IList<string> Categorieen { get; set; }

@@ -34,16 +34,16 @@ namespace Bestandenselektie.HKD.ViewModels
         private bool isValid;
         private bool exportAsExcel;
         private bool markDirectoriesAsProcessed;
+        private bool filenamesAsDescription;
         private readonly ProgressDialog dialog;
         private readonly Storage storage;
         private MetroWindow? parent;
         private CancellationTokenSource? exportcancelled;
-        private ReferenceData referenceData;
 
         public ExporterViewModel(Storage storage, ReferenceData referenceData)
         {
             this.storage = storage;
-            this.referenceData = referenceData;
+            ReferenceData = referenceData;
 
             settings = storage.ReadSettings();
             
@@ -61,6 +61,7 @@ namespace Bestandenselektie.HKD.ViewModels
             ExportAsExcel = settings.ExportToExcel;
             ExcelFileLocation = settings.ExcelFilename;
             MarkDirectoriesAsProcessed = settings.MarkDirectoriesAsProcessed;
+            FilenamesAsDescription = settings.FilenamesAsDescription;
 
             PropertyChanged += ExporterViewModel_PropertyChanged;
             dialog = new ProgressDialog()
@@ -105,7 +106,8 @@ namespace Bestandenselektie.HKD.ViewModels
                       $"Technische foutcode: {exception.TechnicalReason}";
 
                 MessageBox.Show(parent, message, "Expoteren", MessageBoxButton.OK, MessageBoxImage.Error);
-            } else if (e.Result is Exception exception2)
+            }
+            else if (e.Result is Exception exception2)
             {
                 MessageBox.Show(parent, exception2.Message, "Expoteren", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -148,8 +150,9 @@ namespace Bestandenselektie.HKD.ViewModels
             settings.ExportToExcel = ExportAsExcel;
             settings.ExcelFilename = ExcelFileLocation;
             settings.MarkDirectoriesAsProcessed = MarkDirectoriesAsProcessed;
+            settings.FilenamesAsDescription = FilenamesAsDescription;
 
-            referenceData.Update(settings);
+            ReferenceData.Update(settings);
 
             storage.Write(settings);
 
@@ -177,6 +180,9 @@ namespace Bestandenselektie.HKD.ViewModels
             }
 
             storage.Write(settings);
+
+            DefaultFotograaf = "";
+            defaultPlaats = "";
         }
 
         private void CreateDirectory(string path)
@@ -202,7 +208,7 @@ namespace Bestandenselektie.HKD.ViewModels
                 CreateEmptyExcel();
             }
 
-            string filename = Path.GetFileName(TargetDirectory!)!;
+            string filename = Path.GetFileNameWithoutExtension(ExcelFileLocation!)!;
 
             try
             {
@@ -267,91 +273,115 @@ namespace Bestandenselektie.HKD.ViewModels
                         uint newRowIndex = Convert.ToUInt32(rowIndex + i + 1);
                         Row newRow = new Row { RowIndex = newRowIndex };
 
-                        newRow.Append(GenerateEmpty(2));
+                        newRow.Append(GenerateEmpty(2));    // A B
 
-                        newRow.AppendChild(new Cell
+                        newRow.AppendChild(new Cell         // C
                         {
                             DataType = CellValues.Number,
                             CellValue = new CellValue("" + (rowIndex - 2 + i + 1))
                         });
 
-                        newRow.AppendChild(new Cell
+                        newRow.AppendChild(new Cell         // D
                         {
                             DataType = CellValues.String,
                             CellValue = new CellValue(filename + (rowIndex - 2 + i + 1))
                         });
 
-                        newRow.AppendChild(new Cell
+                        newRow.AppendChild(new Cell         // E
                         {
                             DataType = CellValues.String,
                             CellValue = new CellValue(file.Rubriek?.Naam ?? string.Empty)
                         });
 
-                        newRow.AppendChild(new Cell
+                        newRow.AppendChild(new Cell         // F
                         {
                             DataType = CellValues.String,
                             CellValue = new CellValue(file.Subrubriek?.Naam ?? string.Empty)
                         });
 
-                        newRow.AppendChild(new Cell
+                        newRow.AppendChild(new Cell         // G
                         {
                             DataType = CellValues.String,
                             CellValue = new CellValue(file.Titel ?? string.Empty)
                         });
 
-                        newRow.Append(GenerateEmpty(1));
+                        if (FilenamesAsDescription)         // H
+                        {
+                            newRow.AppendChild(new Cell
+                            {
+                                DataType = CellValues.String,
+                                CellValue = new CellValue(file.NameWithoutExtension ?? string.Empty)
+                            });
+                        }
+                        else
+                        {
+                            newRow.Append(GenerateEmpty(1));
+                        }
 
-                        newRow.AppendChild(new Cell
+                        newRow.AppendChild(new Cell         // I
                         {
                             DataType = CellValues.String,
                             CellValue = new CellValue(file.Fotograaf ?? string.Empty)
                         });
 
-                        newRow.AppendChild(new Cell
+                        newRow.AppendChild(new Cell         // J
                         {
                             DataType = CellValues.String,
                             CellValue = new CellValue(file.Datering ?? string.Empty)
                         });
 
-                        newRow.Append(GenerateEmpty(3));
+                        newRow.Append(GenerateEmpty(3));    // K, L, M
 
-                        newRow.AppendChild(new Cell
+                        newRow.AppendChild(new Cell         // N
                         {
                             DataType = CellValues.String,
                             CellValue = new CellValue(file.Plaats ?? string.Empty)
                         });
 
-                        newRow.Append(GenerateEmpty(5));
+                        newRow.Append(GenerateEmpty(4));    // O, P, Q, R
 
-                        newRow.AppendChild(new Cell
+                        if (!FilenamesAsDescription)        // S
+                        {
+                            newRow.AppendChild(new Cell
+                            {
+                                DataType = CellValues.String,
+                                CellValue = new CellValue(file.NameWithoutExtension ?? string.Empty)
+                            });
+                        }
+                        else
+                        {
+                            newRow.Append(GenerateEmpty(1));
+                        }
+
+                        newRow.AppendChild(new Cell         // T
                         {
                             DataType = CellValues.String,
                             CellValue = new CellValue(file.Archieflocatie ?? string.Empty)
                         });
 
-                        newRow.Append(GenerateEmpty(1));
+                        newRow.Append(GenerateEmpty(1));    // U
 
-                        newRow.AppendChild(new Cell
+                        newRow.AppendChild(new Cell         // V
                         {
                             DataType = CellValues.String,
                             CellValue = new CellValue(file.Categorie ?? string.Empty)
                         });
 
-                        newRow.Append(GenerateEmpty(2));
+                        newRow.Append(GenerateEmpty(2));    // W, X
 
-                        newRow.AppendChild(new Cell
+                        newRow.AppendChild(new Cell         // Y
                         {
                             DataType = CellValues.String,
                             CellValue = new CellValue(file.Collectie ?? string.Empty)
                         });
 
-                        newRow.Append(GenerateEmpty(3));
+                        newRow.Append(GenerateEmpty(3));    // Z, AA, AB
 
                         var path = file.Target ?? file.FullPath;
                         var segments = path.Split(Path.VolumeSeparatorChar).Last().Split(Path.DirectorySeparatorChar).TakeLast(3);
                         string newPath = Path.DirectorySeparatorChar + Path.Combine(segments.ToArray());
 
-                        newRow.AppendChild(new Cell
+                        newRow.AppendChild(new Cell         // AC
                         {
                             DataType = CellValues.String,
                             CellValue = new CellValue(newPath)
@@ -529,6 +559,72 @@ namespace Bestandenselektie.HKD.ViewModels
             set { SetProperty(ref markDirectoriesAsProcessed, value); }
         }
 
+        public bool FilenamesAsDescription
+        {
+            get { return filenamesAsDescription; }
+            set { SetProperty(ref filenamesAsDescription, value); }
+        }
+
+        private string? defaultPlaats;
+        public string? DefaultPlaats
+        {
+            get
+            {
+                return defaultPlaats;
+            }
+            set
+            {
+                var oldPlaats = defaultPlaats;
+                SetProperty(ref defaultPlaats, value);
+           
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    return;
+                }
+
+                if (!ReferenceData.Plaatsen.Contains(value))
+                {
+                    ReferenceData.Plaatsen.Add(value);
+                }
+
+                foreach (var file in Files)
+                {
+                    if (string.IsNullOrWhiteSpace(file.Plaats) || (!string.IsNullOrWhiteSpace(oldPlaats) && file.Plaats == oldPlaats))
+                    {
+                        file.Plaats = value;
+                    }
+                }
+            }
+        }
+
+        private string? defaultFotograaf;
+        public string? DefaultFotograaf
+        {
+            get
+            {
+                return defaultFotograaf;
+            }
+            set
+            {
+                var oldPFotograaf = defaultFotograaf;
+
+                SetProperty(ref defaultFotograaf, value);
+
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    return;
+                }
+
+                foreach (var file in Files)
+                {
+                    if (string.IsNullOrWhiteSpace(file.Fotograaf) || (!string.IsNullOrWhiteSpace(oldPFotograaf) && file.Fotograaf == oldPFotograaf))
+                    {
+                        file.Fotograaf = value;
+                    }
+                }
+            }
+        }
+
         public bool IsExportWindowOpen
         {
             get { return isExportWindowOpen; }
@@ -541,6 +637,7 @@ namespace Bestandenselektie.HKD.ViewModels
             set { SetProperty(ref isValid, value); }
         }
 
+        public ReferenceData ReferenceData { get; }
         public ICommand ShowExportCommand { get; }
         public ICommand ExportCommand { get; }
         public ICommand BrowseDirectoryCommand { get; }

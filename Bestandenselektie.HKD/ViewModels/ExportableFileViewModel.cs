@@ -31,6 +31,7 @@ namespace Bestandenselektie.HKD.ViewModels
             ReferenceData = referenceData;
             ParentViewModel = parentViewModel;
             Name = file.Name;
+            NameWithoutExtension = Path.GetFileNameWithoutExtension(file.Name);
             Extension = file.Extension;
             FullPath = file.FullName!;
             Directory = file.Directory!;
@@ -89,6 +90,7 @@ namespace Bestandenselektie.HKD.ViewModels
         public DirectoryInfo Directory { get; }
         public string FullPath { get; }
         public string Name { get; }
+        public string NameWithoutExtension { get; }
         public string Extension { get; }
         public string Modified { get; }
         public string Created { get; }
@@ -275,7 +277,6 @@ namespace Bestandenselektie.HKD.ViewModels
             get { return plaats; }
             set { SetProperty(ref plaats, value); }
         }
-
 
         private string? newPlaats;
         public string? NewPlaats

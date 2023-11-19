@@ -68,37 +68,6 @@
                     <system:Double x:Key="MahApps.Font.Size.ToggleSwitch.Header">18</system:Double>
                     <system:Double x:Key="MahApps.Font.Size.ColorPicker.TabItemHeader">20</system:Double>
                     <system:Double x:Key="MahApps.Font.Size.ControlContentTheme">18</system:Double>
-
-                    <x:Array x:Key="Rubrieken" Type="{x:Type system:String}">
-                        <system:String>Agrarisch</system:String>
-                        <system:String>Archeologie</system:String>
-                        <system:String>Bedrijven</system:String>
-                        <system:String>Begraafplaats</system:String>
-                        <system:String>Cartografie</system:String>
-                        <system:String>Document</system:String>
-                        <system:String>Dorpsgezicht</system:String>
-                        <system:String>Evenement</system:String>
-                        <system:String>Folklore</system:String>
-                        <system:String>Foto's Algemeen</system:String>
-                        <system:String>Gebeurtenis</system:String>
-                        <system:String>Gebouwen</system:String>
-                        <system:String>Gemeente</system:String>
-                        <system:String>Gezondheidszorg</system:String>
-                        <system:String>Infrastructuur</system:String>
-                        <system:String>Kastelen en Havezaten</system:String>
-                        <system:String>Kerken en Kloosters</system:String>
-                        <system:String>Kunst en Cultuur</system:String>
-                        <system:String>Media</system:String>
-                        <system:String>Monumenten</system:String>
-                        <system:String>Natuur</system:String>
-                        <system:String>Oorlog</system:String>
-                        <system:String>Religie</system:String>
-                        <system:String>Scholen</system:String>
-                        <system:String>Sport en Sportpark</system:String>
-                        <system:String>Toerisme</system:String>
-                        <system:String>Verenigingen</system:String>
-                        <system:String>Verkeer en Vervoer</system:String>
-                    </x:Array>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
